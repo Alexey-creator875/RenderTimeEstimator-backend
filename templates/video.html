@@ -3,33 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Render Time Estimator</title>
     <link rel="stylesheet" href="/static/styles/video_style.css">
   </head>
   <body>
     <div class="space">
       <div class="container">
-            <img src="./img/1.jpg" class="image">
-            <p class="title">{{ .renderUnit.Title }}</p>
-            <div class="short-description">
-              <p>{{ .renderUnit.GPU }}</p>
-              <p>{{ .renderUnit.RAM }}</p>
-              <p>{{ .renderUnit.Storage }}</p>
-            </div>
-        </ul>
+        <p class="title">{{ .renderUnit.Title }}</p>
+        <div class="short-description">
+          <p>{{ .renderUnit.GPU }}</p>
+          <p>{{ .renderUnit.RAM }}</p>
+          <p>{{ .renderUnit.Storage }}</p>
+        </div>
       </div>
 
       <div class="nav">
         <ul class="nav-list">
-          <li class="nav-item">
-            <a class="label" href="/RenderUnits/1">Лента</a>
+          <li class="active">
+            <a href="/RenderUnits/1">Лента</a>
           </li>
-          <li class="nav-item">
-            <a class="label" href="">Добавление</a>
+          <li>
+            <a href="">Добавление</a>
           </li>
-          <li class="nav-item">
-            <a class="label" href="/RenderUnits">Плитка</a>
+          <li>
+            <a href="/RenderUnits">Плитка</a>
           </li>
         </ul>
       </div>
