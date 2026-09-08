@@ -1,11 +1,12 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
-	"log"
 	"RenderTimeEstimator/internal/app/handler"
 	"RenderTimeEstimator/internal/app/repository"
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func StartServer() {
@@ -19,11 +20,9 @@ func StartServer() {
 	handler := handler.NewHandler(repo)
 
 	r := gin.Default()
-	// добавляем наш html/шаблон
+
 	r.LoadHTMLGlob("../../templates/*")
 	r.Static("/static", "../../resources")
-	// слева название папки, в которую выгрузится наша статика
-	// справа путь к папке, в которой лежит статика
 
 	r.GET("/RenderUnits", handler.GetRenderUnits)
 	r.GET("/RenderUnits/:id", handler.GetRenderUnit)

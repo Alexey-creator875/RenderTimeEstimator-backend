@@ -1,0 +1,55 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* или center, если хотите вертикальное центрирование */
+
+    background-color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.space {
+    width: 375px;
+    height: 100vh;           /* или min-height: 100vh — чтобы занимал всю высоту */
+    display: flex;
+    flex-direction: column;
+
+    background-color: #e9f5ff;
+}
+
+.card{
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    padding: 10%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nav {
+    flex-shrink: 0;
+    border-top: 1px solid #d1d1d1; /* добавим для наглядности */
+    background-color: white; /* можете потом убрать */
+}
+
+/* ===== Список пунктов навигации ===== */
+.nav-list {
+    display: flex;
+    justify-content: space-around;  /* равномерное распределение пунктов */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== Каждый пункт навигации ===== */
+.nav-item {
+    display: flex;
+    flex-direction: column;     /* иконка сверху, текст снизу */
+    align-items: center;
+    /* при необходимости добавьте отступы, но они уже относятся к расположению */
+    padding: 8px 0 4px;         /* маленький отступ сверху и снизу (необязательно) */
+}

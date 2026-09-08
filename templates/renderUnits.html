@@ -18,7 +18,7 @@
         <ul class="cards-list">
           {{ range .renderUnits }}
           <li class="card">
-            <img src="./img/1.jpg" class="image">
+            <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
             <p class="title">{{ .Title }}</p>
             <div class="short-description">
               <p>{{ .GPU }}</p>

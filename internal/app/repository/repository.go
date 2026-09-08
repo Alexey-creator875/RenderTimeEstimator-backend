@@ -18,6 +18,7 @@ type RenderUnit struct {
 	GPU string
 	RAM string
 	Storage string
+	ImagePath string
 }
 
 func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
@@ -28,6 +29,7 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 			GPU: "2080 Ti",
 			RAM: "32768 МБ ОЗУ",
 			Storage: "160 ГБ SSD",
+			ImagePath: "2080-Ti.jpg",
 		},
 		{
 			ID:    2,
@@ -35,6 +37,7 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 			GPU: "3090",
 			RAM: "32768 МБ ОЗУ",
 			Storage: "160 ГБ SSD",
+			ImagePath: "2080-Ti.jpg",
 		},
 		{
 			ID:    3,
@@ -42,6 +45,7 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 			GPU: "4090",
 			RAM: "32768 МБ ОЗУ",
 			Storage: "160 ГБ SSD",
+			ImagePath: "2080-Ti.jpg",
 		},
 	}
 
