@@ -1,41 +1,24 @@
-header {
-    height: 50px;
-    background-color: white;
-
-    border-bottom-width: 1px;
-    border-bottom-color: #d1d1d1;
-}
-
-header img { /*задаем размер картинки*/
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* или center, если хотите вертикальное центрирование */
+
     background-color: white;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.space{
+.space {
     width: 375px;
-    margin-left: auto;
-    margin-right: auto;
+    height: 100vh;           /* или min-height: 100vh — чтобы занимал всю высоту */
+    display: flex;
+    flex-direction: column;
 
     background-color: #e9f5ff;
-}
-
-/* .container{
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 20px;
-} */
-
-.cards-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 20px; 
 }
 
 .card{
@@ -47,9 +30,10 @@ body {
     justify-content: space-between;
 }
 
-/* ===== Нижняя навигация ===== */
 .nav {
-    flex-shrink: 0;             /* не сжимается, всегда занимает свою высоту */
+    flex-shrink: 0;
+    border-top: 1px solid #d1d1d1; /* добавим для наглядности */
+    background-color: white; /* можете потом убрать */
 }
 
 /* ===== Список пунктов навигации ===== */

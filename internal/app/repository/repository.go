@@ -12,7 +12,7 @@ func NewRepository() (*Repository, error) {
 	return &Repository{}, nil
 }
 
-type Order struct {
+type RenderUnit struct {
   	ID int
   	Title string
 	GPU string
@@ -20,8 +20,8 @@ type Order struct {
 	Storage string
 }
 
-func (r *Repository) GetOrders() ([]Order, error) {
-	orders := []Order{
+func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
+	renderUnits := []RenderUnit{
 		{
 			ID:    1,
 			Title: "2080 Ti",
@@ -45,37 +45,37 @@ func (r *Repository) GetOrders() ([]Order, error) {
 		},
 	}
 
-	if len(orders) == 0 {
+	if len(renderUnits) == 0 {
 		return nil, fmt.Errorf("массив пустой")
 	}
 
-	return orders, nil
+	return renderUnits, nil
 }
 
-func (r *Repository) GetOrder(id int) (Order, error) {
-	orders, err := r.GetOrders()
+func (r *Repository) GetRenderUnit(id int) (RenderUnit, error) {
+	renderUnits, err := r.GetRenderUnits()
 	if err != nil {
-		return Order{}, err
+		return RenderUnit{}, err
 	}
 
-	for _, order := range orders {
-		if order.ID == id {
-			return order, nil
+	for _, renderUnit := range renderUnits {
+		if renderUnit.ID == id {
+			return renderUnit, nil
 		}
 	}
-	return Order{}, fmt.Errorf("заказ не найден")
+	return RenderUnit{}, fmt.Errorf("заказ не найден")
 }
 
-func (r *Repository) GetOrdersByTitle(title string) ([]Order, error) {
-	orders, err := r.GetOrders()
+func (r *Repository) GetRenderUnitsByTitle(title string) ([]RenderUnit, error) {
+	renderUnits, err := r.GetRenderUnits()
 	if err != nil {
-		return []Order{}, err
+		return []RenderUnit{}, err
 	}
 
-	var result []Order
-	for _, order := range orders {
-		if strings.Contains(strings.ToLower(order.Title), strings.ToLower(title)) {
-			result = append(result, order)
+	var result []RenderUnit
+	for _, renderUnit := range renderUnits {
+		if strings.Contains(strings.ToLower(renderUnit.Title), strings.ToLower(title)) {
+			result = append(result, renderUnit)
 		}
 	}
 
