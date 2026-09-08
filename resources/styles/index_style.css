@@ -1,22 +1,70 @@
+header {
+    height: 50px;
+    background-color: white;
+
+    border-bottom-width: 1px;
+    border-bottom-color: #d1d1d1;
+}
+
 header img { /*задаем размер картинки*/
     width: 50px;
     height: 50px;
     cursor: pointer;
 }
 
-
-ul li a {
-    text-decoration: none;
-    color: #333;
-    font-size: 18px;
+body {
+    background-color: white;
 }
 
-ul li a:hover {
-    text-decoration: underline;
+.space{
+    width: 375px;
+    margin-left: auto;
+    margin-right: auto;
+
+    background-color: #e9f5ff;
 }
 
-h2 {
-    color: #333;
-    font-size: 18px;
-    margin-top: 20px;
+/* .container{
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 20px;
+} */
+
+.cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px; 
+}
+
+.card{
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    padding: 10%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* ===== Нижняя навигация ===== */
+.nav {
+    flex-shrink: 0;             /* не сжимается, всегда занимает свою высоту */
+}
+
+/* ===== Список пунктов навигации ===== */
+.nav-list {
+    display: flex;
+    justify-content: space-around;  /* равномерное распределение пунктов */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== Каждый пункт навигации ===== */
+.nav-item {
+    display: flex;
+    flex-direction: column;     /* иконка сверху, текст снизу */
+    align-items: center;
+    /* при необходимости добавьте отступы, но они уже относятся к расположению */
+    padding: 8px 0 4px;         /* маленький отступ сверху и снизу (необязательно) */
 }

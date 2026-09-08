@@ -4,6 +4,10 @@ header img { /*задаем размер картинки*/
     cursor: pointer;
 }
 
+body {
+    background-color: white;
+}
+
 h1 {
     color: #333;
     font-size: 24px;

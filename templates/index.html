@@ -1,27 +1,50 @@
-<html lang="en">
-<head>
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Render Time Estimator</title>
     <link rel="stylesheet" href="/static/styles/index_style.css">
-</head>
-<header>
-    <h1>
+  </head>
+  <body>
+    <header>
+      <h1>
         <a href="/hello"><img src="/static/img/render-logo.png" alt="home"></a>
-    </h1>
-</header>
-<form action="/hello" method="GET">
-    <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
-    <!-- value="{{ .query }}"  нужно для того, чтобы из обработчика передавать
-    введенный запрос обратно на страницу. Тем самым введенный текст в поле поиска будет сохраняться-->
-    <button type="submit">Найти</button>
-</form>
-    <h2>
-        {{ .time }}
-    </h2>
-    <ul>
-        {{ range .orders }}
-        <li>
-            <a href="/order/{{ .ID }}"> {{ .Title }} </a>
-        </li>
-        {{ end }}
-    </ul>
+      </h1>
+    </header>
+    <div class="space">
+      <div class="container">
+        <form action="/hello" method="GET">
+          <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
+          <button type="submit">Найти</button>
+        </form>
+        
+        <ul class="cards-list">
+          {{ range .orders }}
+          <li class="card">
+            <img src="./img/1.jpg" class="image">
+            <p class="title">{{ .Title }}</p>
+            <p class="short-description">Крем-гель для проблемной кожи</p>
+            <p>1348 ₽</p>
+            <a href="/order/{{ .ID }}" class="card-button">Подробнее</a> 
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      <div class="nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="label" href="/hello">Лента</a>
+          </li>
+          <li class="nav-item">
+            <a class="label" href="/hello">Добавление</a>
+          </li>
+          <li class="nav-item">
+            <a class="label" href="/hello">Плитка</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
 </html>
