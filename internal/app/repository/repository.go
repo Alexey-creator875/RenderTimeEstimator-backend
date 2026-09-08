@@ -37,7 +37,7 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 			GPU: "3090",
 			RAM: "32768 МБ ОЗУ",
 			Storage: "160 ГБ SSD",
-			ImagePath: "2080-Ti.jpg",
+			ImagePath: "3090.jpg",
 		},
 		{
 			ID:    3,
@@ -45,7 +45,7 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 			GPU: "4090",
 			RAM: "32768 МБ ОЗУ",
 			Storage: "160 ГБ SSD",
-			ImagePath: "2080-Ti.jpg",
+			ImagePath: "4090.png",
 		},
 	}
 
