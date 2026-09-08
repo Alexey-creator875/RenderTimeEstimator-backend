@@ -25,8 +25,11 @@
           <li class="card">
             <img src="./img/1.jpg" class="image">
             <p class="title">{{ .Title }}</p>
-            <p class="short-description">Крем-гель для проблемной кожи</p>
-            <p>1348 ₽</p>
+            <div class="short-description">
+              <p>{{ .GPU }}</p>
+              <p>{{ .RAM }}</p>
+              <p>{{ .Storage }}</p>
+            </div>
             <a href="/order/{{ .ID }}" class="card-button">Подробнее</a> 
           </li>
           {{ end }}
