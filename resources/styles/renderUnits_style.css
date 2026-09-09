@@ -77,7 +77,7 @@ form input[type="text"] {
   flex: 1;
   padding: 10px 16px;
   border: 1px solid #d1d1d1;
-  border-radius: 30px;
+  border-radius: 5px;
   font-size: 1rem;
   background: #ffffff;
   outline: none;
@@ -96,7 +96,7 @@ form input[type="text"] {
   background: #007aff;
   color: #ffffff;
   border: none;
-  border-radius: 30px;
+  border-radius: 5px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -201,7 +201,7 @@ form input[type="text"] {
   color: #fff;
   border: none;
   padding: 6px 16px;
-  border-radius: 30px;
+  border-radius: 5px;
   font-size: 0.8rem;
   text-decoration: none;
   font-weight: 600;
