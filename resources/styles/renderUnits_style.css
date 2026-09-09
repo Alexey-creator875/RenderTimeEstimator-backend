@@ -65,6 +65,49 @@ html, body {
   background: #eef0f2;
 }
 
+/* Форма поиска */
+form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px; /* отступ от карточек */
+}
+
+/* Поле ввода */
+form input[type="text"] {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #d1d1d1;
+  border-radius: 30px;
+  font-size: 1rem;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Фокус на поле */
+.grid-container form input[type="text"]:focus {
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+/* Кнопка "Найти" */
+.grid-container form button {
+  padding: 10px 20px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.grid-container form button:hover {
+  background: #005bbf;
+}
+
 .cards-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

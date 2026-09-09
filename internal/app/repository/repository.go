@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Repository struct {
@@ -104,7 +103,7 @@ func (r *Repository) GetRenderUnit(id int) (RenderUnit, error) {
 	return RenderUnit{}, fmt.Errorf("заказ не найден")
 }
 
-func (r *Repository) GetRenderUnitsByProcessor(processor string) ([]RenderUnit, error) {
+func (r *Repository) GetPublishedRenderUnitsByRAM(ram int) ([]RenderUnit, error) {
 	renderUnits, err := r.GetRenderUnits()
 	if err != nil {
 		return []RenderUnit{}, err
@@ -112,7 +111,7 @@ func (r *Repository) GetRenderUnitsByProcessor(processor string) ([]RenderUnit, 
 
 	var result []RenderUnit
 	for _, renderUnit := range renderUnits {
-		if strings.Contains(strings.ToLower(renderUnit.Processor), strings.ToLower(processor)) {
+		if renderUnit.RAM == ram && renderUnit.Status == "published" {
 			result = append(result, renderUnit)
 		}
 	}
