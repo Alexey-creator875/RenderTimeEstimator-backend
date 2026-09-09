@@ -23,14 +23,14 @@ func (h *Handler) GetRenderUnits(ctx *gin.Context) {
 	var renderUnits []repository.RenderUnit
 	var err error
 
-	searchQuery := ctx.Query("query") // получаем значение из поля поиска
-	if searchQuery == "" {            // если поле поиска пусто, то просто получаем из репозитория все записи
-		renderUnits, err = h.Repository.GetRenderUnits()
+	searchQuery := ctx.Query("query")
+	if searchQuery == "" {
+		renderUnits, err = h.Repository.GetPublishedRenderUnits()
 		if err != nil {
 			logrus.Error(err)
 		}
 	} else {
-		renderUnits, err = h.Repository.GetRenderUnitsByTitle(searchQuery) // в ином случае ищем заказ по заголовку
+		renderUnits, err = h.Repository.GetRenderUnitsByProcessor(searchQuery) // в ином случае ищем заказ по заголовку
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -44,19 +44,73 @@ func (h *Handler) GetRenderUnits(ctx *gin.Context) {
 }
 
 func (h *Handler) GetRenderUnit(ctx *gin.Context) {
-	idStr := ctx.Param("id") // получаем id заказа из урла (то есть из /order/:id)
-	// через двоеточие мы указываем параметры, которые потом сможем считать через функцию выше
-	id, err := strconv.Atoi(idStr) // так как функция выше возвращает нам строку, нужно ее преобразовать в int
+    idStr := ctx.Param("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        logrus.Error(err)
+        return
+    }
+
+    nextParam := ctx.Query("next")
+    var renderUnit repository.RenderUnit
+
+    switch  nextParam{
+    case "":
+        renderUnit, err = h.Repository.GetRenderUnit(id)
+    case "true":
+		renderUnit, err = h.Repository.GetNextPublishedRenderUnitTo(id)
+        if err == nil {
+            ctx.Redirect(http.StatusFound, "/RenderUnits/"+strconv.Itoa(renderUnit.ID))
+            return
+        }
+    default:
+        logrus.Error(err)
+        ctx.String(http.StatusBadRequest, "параметр next должен быть true или отсутствовать")
+        return
+    }
+
+    if err != nil {
+        logrus.Error(err)
+        ctx.String(http.StatusNotFound, "запись не найдена")
+        return
+    }
+
+    ctx.HTML(http.StatusOK, "video.html", gin.H{
+        "renderUnit": renderUnit,
+    })
+}
+
+func (h *Handler) GetDraftRenderUnit(ctx *gin.Context) {
+	renderUnit, err := h.Repository.GetDraftRenderUnit()
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	renderUnit, err := h.Repository.GetRenderUnit(id)
-	if err != nil {
-		logrus.Error(err)
-	}
-
-	ctx.HTML(http.StatusOK, "video.html", gin.H{
+	ctx.HTML(http.StatusOK, "addRenderUnit.html", gin.H{
 		"renderUnit":renderUnit,
 	})
 }
+
+// func (h *Handler) GetNextRenderUnit(ctx *gin.Context) {
+// 	idStr := ctx.Param("id")
+// 	id, err := strconv.Atoi(idStr)
+
+// 	if err != nil {
+// 		logrus.Error(err)
+// 	}
+
+// 	next := ctx.Param("next")
+
+// 	if next != "true" {
+// 		ctx.HTML(http.StatusNotFound, "", gin.H{})
+// 	}
+
+// 	renderUnit, err := h.Repository.GetNextPublishedRenderUnitTo(id)
+// 	if err != nil {
+// 		logrus.Error(err)
+// 	}
+
+// 	ctx.HTML(http.StatusOK, "video.html", gin.H{
+// 		"renderUnit":renderUnit,
+// 	})
+// }

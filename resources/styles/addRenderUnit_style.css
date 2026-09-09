@@ -1,55 +1,64 @@
-html, body {
-    height: 100%;
-    margin: 0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* или center, если хотите вертикальное центрирование */
-
-    background-color: white;
-    font-family: Arial, Helvetica, sans-serif;
+html, body {
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: white;
 }
 
 .space {
-    width: 375px;
-    height: 100vh;           /* или min-height: 100vh — чтобы занимал всю высоту */
-    display: flex;
-    flex-direction: column;
-
-    background-color: #e9f5ff;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #e9f5ff;
+  min-height: 100vh;
+  padding-bottom: 64px;
 }
 
-.card{
-    border-radius: 10px;
-    background-color: #FFFFFF;
-    padding: 10%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+
 
 .nav {
-    flex-shrink: 0;
-    border-top: 1px solid #d1d1d1; /* добавим для наглядности */
-    background-color: white; /* можете потом убрать */
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 480px;
+  height: 64px;
+  background: #ffffff;
+  border-top: 1px solid #d1d1d1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  z-index: 100;
 }
 
-/* ===== Список пунктов навигации ===== */
-.nav-list {
-    display: flex;
-    justify-content: space-around;  /* равномерное распределение пунктов */
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.nav ul {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  list-style: none;
 }
 
-/* ===== Каждый пункт навигации ===== */
-.nav-item {
-    display: flex;
-    flex-direction: column;     /* иконка сверху, текст снизу */
-    align-items: center;
-    /* при необходимости добавьте отступы, но они уже относятся к расположению */
-    padding: 8px 0 4px;         /* маленький отступ сверху и снизу (необязательно) */
+.nav li {
+  flex: 1;
+  text-align: center;
+}
+
+.nav a {
+  display: block;
+  padding: 8px 0;
+  text-decoration: none;
+  color: #666;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.nav li.active a {
+  color: #000;
+  font-weight: bold;
+  background: #eef0f2;
 }

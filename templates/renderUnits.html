@@ -10,37 +10,44 @@
   <body>
     <div class="space">
       <div class="container">
-        <form action="/RenderUnits" method="GET">
-          <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
-          <button type="submit">Найти</button>
-        </form>
-        
-        <ul class="cards-list">
-          {{ range .renderUnits }}
-          <li class="card">
-            <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
-            <p class="title">{{ .Title }}</p>
-            <div class="short-description">
-              <p>{{ .GPU }}</p>
-              <p>{{ .RAM }}</p>
-              <p>{{ .Storage }}</p>
-            </div>
-            <a href="/RenderUnits/{{ .ID }}" class="card-button">Подробнее</a> 
-          </li>
-          {{ end }}
-        </ul>
+        <div class="catalog-container">
+          <form action="/RenderUnits" method="GET">
+            <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
+            <button type="submit">Найти</button>
+          </form>
+          
+          <ul class="cards-list">
+            {{ range .renderUnits }}
+            <li class="card">
+              <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
+              <p class="title">{{ .Processor }}</p>
+              <div class="short-description">
+                <p>{{ .Cores }}</p>
+                <p>{{ .RAM }}</p>
+              </div>
+              <a href="/RenderUnits/{{ .ID }}" class="card-button">Подробнее</a> 
+            </li>
+            {{ end }}
+          </ul>
+        </div>
       </div>
 
       <div class="nav">
         <ul class="nav-list">
           <li>
-            <a href="/RenderUnits/1">Лента</a>
+            <a href="/RenderUnits/1">
+              <img src="/static/img/home.png" alt="Лента" />
+            </a>
           </li>
           <li>
-            <a href="">Добавление</a>
+            <a href="/AddRenderUnit">
+              <img src="/static/img/add.png" alt="Добавление" />
+            </a>
           </li>
           <li class="active">
-            <a href="/RenderUnits">Плитка</a>
+            <a href="/RenderUnits">
+              <img src="/static/img/grid.png" alt="Плитка" />
+            </a>
           </li>
         </ul>
       </div>

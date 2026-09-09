@@ -10,24 +10,46 @@
   <body>
     <div class="space">
       <div class="container">
-        <p class="title">{{ .renderUnit.Title }}</p>
-        <div class="short-description">
-          <p>{{ .renderUnit.GPU }}</p>
-          <p>{{ .renderUnit.RAM }}</p>
-          <p>{{ .renderUnit.Storage }}</p>
+        <div class="video-container">
+          <div class="video-wrapper">
+            <video src="http://localhost:9000/render-assets/{{ .renderUnit.VideoPath }}" autoplay muted loop playsinline></video>
+          </div>
+
+          <div class="overlay">
+            <div class="overlay-left">
+              <div class="title">{{ .renderUnit.Processor }}</div>
+              <div class="description">{{ .renderUnit.Description }}</div>
+            </div>
+
+            <div class="overlay-right">
+              <div>
+                <img src="/static/img/like.png" alt="Лайк" class="icon like-icon" />
+                <p>{{ .renderUnit.Likes }}</p>
+              </div>
+              <a href="/RenderUnits/{{ .renderUnit.ID }}?next=true">
+                <img src="/static/img/next.png" alt="Следующее" class="icon next-icon" />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="nav">
         <ul class="nav-list">
           <li class="active">
-            <a href="/RenderUnits/1">Лента</a>
+            <a href="/RenderUnits/1">
+              <img src="/static/img/home.png" alt="Лента" />
+            </a>
           </li>
           <li>
-            <a href="">Добавление</a>
+            <a href="/AddRenderUnit">
+              <img src="/static/img/add.png" alt="Добавление" />
+            </a>
           </li>
           <li>
-            <a href="/RenderUnits">Плитка</a>
+            <a href="/RenderUnits">
+              <img src="/static/img/grid.png" alt="Плитка" />
+            </a>
           </li>
         </ul>
       </div>
