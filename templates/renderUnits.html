@@ -10,7 +10,7 @@
   <body>
     <div class="space">
       <div class="container">
-        <div class="catalog-container">
+        <div class="grid-container">
           <form action="/RenderUnits" method="GET">
             <input type="text" name="query" placeholder="Введите запрос" value="{{ .query }}">
             <button type="submit">Найти</button>
@@ -19,13 +19,34 @@
           <ul class="cards-list">
             {{ range .renderUnits }}
             <li class="card">
-              <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
-              <p class="title">{{ .Processor }}</p>
+              <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" alt="4090" class="card-image" />
+
+              <div class="card-body">
+                <h3 class="card-title">{{ .Processor }}</h3>
+                <p class="card-specs">Количество Ядер: {{ .Cores }} шт.</p>
+                <p class="card-specs">Объём RAM: {{ .RAM }} ГБ</p>
+
+                <div class="card-footer">
+                  <div class="card-likes">
+                    <img src="/static/img/blue-like.png" alt="Лайк" class="like-icon" />
+                    <span class="likes-count">{{ .Likes }}</span>
+                  </div>
+                  <a href="/RenderUnits/{{ .ID }}" class="card-btn">Выбрать</a>
+                </div>
+              </div>
+
+
+              <!-- <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
               <div class="short-description">
+                <p class="title">{{ .Processor }}</p>
                 <p>{{ .Cores }}</p>
                 <p>{{ .RAM }}</p>
               </div>
-              <a href="/RenderUnits/{{ .ID }}" class="card-button">Подробнее</a> 
+              <div class="likes">
+                <img src="/static/img/blue-like.png" alt="лайк">
+                <span>{{ .Likes }}</span>
+              </div>
+              <a href="/RenderUnits/{{ .ID }}" class="card-button">Подробнее</a>  -->
             </li>
             {{ end }}
           </ul>
