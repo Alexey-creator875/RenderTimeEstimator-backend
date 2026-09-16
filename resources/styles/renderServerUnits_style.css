@@ -223,7 +223,7 @@ form input[type="text"] {
   display: flex;
   flex-direction: column;
   gap: 8px;                 /* отступ между подписью и рядом */
-  padding: 16px;
+  padding: 10px;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
