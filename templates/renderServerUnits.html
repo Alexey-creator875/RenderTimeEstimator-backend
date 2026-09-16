@@ -15,6 +15,23 @@
             <input type="text" name="query" placeholder="Введите объём памяти" value="{{ .query }}">
             <button type="submit">Найти</button>
           </form>
+
+          <form class="filter-form" action="/RenderUnits" method="GET">
+            <div class="range-slider">
+              <input type="range" name="min" id="range-min"
+                    min="8" max="128" step="1" value="8"
+                    class="range-input range-min" />
+              <input type="range" name="max" id="range-max"
+                    min="8" max="128" step="1" value="128"
+                    class="range-input range-max" />
+            </div>
+
+            <div class="range-values">
+              <span id="min-output">8</span> — <span id="max-output">128</span> ГБ
+            </div>
+
+            <button type="submit" class="filter-btn">Применить</button>
+          </form>
           
           <ul class="cards-list">
             {{ range .renderServerUnits }}
@@ -60,5 +77,39 @@
         </ul>
       </div>
     </div>
+
+    <script>
+      const minSlider = document.getElementById('range-min');
+      const maxSlider = document.getElementById('range-max');
+      const minOutput = document.getElementById('min-output');
+      const maxOutput = document.getElementById('max-output');
+
+      function updateSlider() {
+        let minVal = parseInt(minSlider.value, 10);
+        let maxVal = parseInt(maxSlider.value, 10);
+
+        // Если min уехал вправо дальше max — возвращаем его на место
+        if (minVal > maxVal) {
+          minSlider.value = maxVal;
+          minVal = maxVal;
+        }
+        // Если max уехал влево дальше min — возвращаем его на место
+        if (maxVal < minVal) {
+          maxSlider.value = minVal;
+          maxVal = minVal;
+        }
+
+        // Обновляем надписи
+        minOutput.textContent = minVal;
+        maxOutput.textContent = maxVal;
+      }
+
+      // Слушаем оба ползунка
+      minSlider.addEventListener('input', updateSlider);
+      maxSlider.addEventListener('input', updateSlider);
+
+      // Инициализация при загрузке страницы
+      updateSlider();
+    </script>
   </body>
 </html>

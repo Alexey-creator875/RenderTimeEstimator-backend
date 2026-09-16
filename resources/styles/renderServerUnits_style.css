@@ -217,3 +217,104 @@ form input[type="text"] {
 .card-btn:active {
   transform: scale(0.96);
 }
+
+/* ===== Форма ===== */
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Область слайдера ===== */
+.range-slider {
+  position: relative;
+  width: 100%;
+  height: 40px;          /* высота области, чтобы удобно было тянуть */
+}
+
+/* Оба input накладываем друг на друга */
+.range-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;          /* сам input не ловит клики */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Дорожка (track) — стилизуем только у одного, чтобы не было двойной линии */
+.range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #d1d1d1;
+}
+.range-input::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #d1d1d1;
+}
+
+/* Ползунки (thumb) — ловят клики сами, поэтому pointer-events: auto */
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;          /* вот это включает перетаскивание */
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #007aff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  margin-top: -9px;              /* центрирование относительно дорожки */
+  transition: transform 0.15s;
+}
+.range-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #007aff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.range-input::-webkit-slider-thumb:hover,
+.range-input::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* ===== Вывод значений ===== */
+.range-values {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+/* ===== Кнопка ===== */
+.filter-btn {
+  padding: 12px 20px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.filter-btn:hover {
+  background: #005bbf;
+}
