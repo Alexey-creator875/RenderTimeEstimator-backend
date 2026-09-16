@@ -11,7 +11,7 @@ func NewRepository() (*Repository, error) {
 	return &Repository{}, nil
 }
 
-type RenderUnit struct {
+type RenderServerUnit struct {
   	ID int
 	Status string
 	Processor string
@@ -23,8 +23,8 @@ type RenderUnit struct {
 	VideoPath string
 }
 
-func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
-	renderUnits := []RenderUnit{
+func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
+	renderServerUnits := []RenderServerUnit{
 		{
 			ID:    1,
 			Status: "published",
@@ -82,69 +82,69 @@ func (r *Repository) GetRenderUnits() ([]RenderUnit, error) {
 		},
 	}
 
-	if len(renderUnits) == 0 {
+	if len(renderServerUnits) == 0 {
 		return nil, fmt.Errorf("массив пустой")
 	}
 
-	return renderUnits, nil
+	return renderServerUnits, nil
 }
 
-func (r *Repository) GetRenderUnit(id int) (RenderUnit, error) {
-	renderUnits, err := r.GetRenderUnits()
+func (r *Repository) GetRenderServerUnit(id int) (RenderServerUnit, error) {
+	renderServerUnits, err := r.GetRenderServerUnits()
 	if err != nil {
-		return RenderUnit{}, err
+		return RenderServerUnit{}, err
 	}
 
-	for _, renderUnit := range renderUnits {
-		if renderUnit.ID == id {
-			return renderUnit, nil
+	for _, renderServerUnit := range renderServerUnits {
+		if renderServerUnit.ID == id {
+			return renderServerUnit, nil
 		}
 	}
-	return RenderUnit{}, fmt.Errorf("заказ не найден")
+	return RenderServerUnit{}, fmt.Errorf("заказ не найден")
 }
 
-func (r *Repository) GetPublishedRenderUnitsByRAM(ram int) ([]RenderUnit, error) {
-	renderUnits, err := r.GetRenderUnits()
+func (r *Repository) GetPublishedRenderServerUnitsByRAM(ram int) ([]RenderServerUnit, error) {
+	renderServerUnits, err := r.GetRenderServerUnits()
 	if err != nil {
-		return []RenderUnit{}, err
+		return []RenderServerUnit{}, err
 	}
 
-	var result []RenderUnit
-	for _, renderUnit := range renderUnits {
-		if renderUnit.RAM == ram && renderUnit.Status == "published" {
-			result = append(result, renderUnit)
-		}
-	}
-
-	return result, nil
-}
-
-func (r *Repository) GetPublishedRenderUnits() ([]RenderUnit, error) {
-	renderUnits, err := r.GetRenderUnits()
-	if err != nil {
-		return []RenderUnit{}, err
-	}
-
-	var result []RenderUnit
-	for _, renderUnit := range renderUnits {
-		if (renderUnit.Status == "published") {
-			result = append(result, renderUnit)
+	var result []RenderServerUnit
+	for _, renderServerUnit := range renderServerUnits {
+		if renderServerUnit.RAM == ram && renderServerUnit.Status == "published" {
+			result = append(result, renderServerUnit)
 		}
 	}
 
 	return result, nil
 }
 
-func (r *Repository) GetDraftRenderUnit() (RenderUnit, error) {
-	renderUnits, err := r.GetRenderUnits()
+func (r *Repository) GetPublishedRenderServerUnits() ([]RenderServerUnit, error) {
+	renderServerUnits, err := r.GetRenderServerUnits()
 	if err != nil {
-		return RenderUnit{}, err
+		return []RenderServerUnit{}, err
 	}
 
-	var result RenderUnit
-	for _, renderUnit := range renderUnits {
-		if (renderUnit.Status == "draft") {
-			result = renderUnit
+	var result []RenderServerUnit
+	for _, renderServerUnit := range renderServerUnits {
+		if (renderServerUnit.Status == "published") {
+			result = append(result, renderServerUnit)
+		}
+	}
+
+	return result, nil
+}
+
+func (r *Repository) GetDraftRenderServerUnit() (RenderServerUnit, error) {
+	renderServerUnits, err := r.GetRenderServerUnits()
+	if err != nil {
+		return RenderServerUnit{}, err
+	}
+
+	var result RenderServerUnit
+	for _, renderServerUnit := range renderServerUnits {
+		if (renderServerUnit.Status == "draft") {
+			result = renderServerUnit
 		}
 	}
 
@@ -152,24 +152,24 @@ func (r *Repository) GetDraftRenderUnit() (RenderUnit, error) {
 }
 
 
-func (r *Repository) GetNextPublishedRenderUnitTo(id int) (RenderUnit, error) {
-	renderUnits, err := r.GetPublishedRenderUnits()
+func (r *Repository) GetNextPublishedRenderServerUnitTo(id int) (RenderServerUnit, error) {
+	renderServerUnits, err := r.GetPublishedRenderServerUnits()
 	if err != nil {
-		return RenderUnit{}, err
+		return RenderServerUnit{}, err
 	}
 
 	var currentIndex int
-	for i, renderUnit := range renderUnits {
-		if (renderUnit.ID == id) {
+	for i, renderServerUnit := range renderServerUnits {
+		if (renderServerUnit.ID == id) {
 			currentIndex = i
 		}
 	}
 
-	if (currentIndex + 1) == len(renderUnits) {
-		return renderUnits[currentIndex], nil
+	if (currentIndex + 1) == len(renderServerUnits) {
+		return renderServerUnits[currentIndex], nil
 	}
 
-	var result RenderUnit = renderUnits[currentIndex + 1]
+	var result RenderServerUnit = renderServerUnits[currentIndex + 1]
 
 	return result, nil
 }

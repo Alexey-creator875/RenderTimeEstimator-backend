@@ -12,21 +12,21 @@
       <div class="container">
         <div class="video-container">
           <div class="video-wrapper">
-            <video src="http://localhost:9000/render-assets/{{ .renderUnit.VideoPath }}" autoplay muted loop playsinline></video>
+            <video src="http://localhost:9000/render-assets/{{ .renderServerUnit.VideoPath }}" autoplay muted loop playsinline></video>
           </div>
 
           <div class="overlay">
             <div class="overlay-left">
-              <div class="title">{{ .renderUnit.Processor }}</div>
-              <div class="description">{{ .renderUnit.Description }}</div>
+              <div class="title">{{ .renderServerUnit.Processor }}</div>
+              <div class="description">{{ .renderServerUnit.Description }}</div>
             </div>
 
             <div class="overlay-right">
               <div>
                 <img src="/static/img/like.png" alt="Лайк" class="icon like-icon" />
-                <p>{{ .renderUnit.Likes }}</p>
+                <p>{{ .renderServerUnit.Likes }}</p>
               </div>
-              <a href="/RenderUnits/{{ .renderUnit.ID }}?next=true">
+              <a href="/RenderServerUnits/{{ .renderServerUnit.ID }}?next=true">
                 <img src="/static/img/next.png" alt="Следующее" class="icon next-icon" />
               </a>
             </div>
@@ -37,17 +37,17 @@
       <div class="nav">
         <ul class="nav-list">
           <li class="active">
-            <a href="/RenderUnits/1">
+            <a href="/RenderServerUnits/1">
               <img src="/static/img/home.png" alt="Лента" />
             </a>
           </li>
           <li>
-            <a href="/AddRenderUnit">
+            <a href="/AddRenderServerUnit">
               <img src="/static/img/add.png" alt="Добавление" />
             </a>
           </li>
           <li>
-            <a href="/RenderUnits">
+            <a href="/RenderServerUnits">
               <img src="/static/img/grid.png" alt="Плитка" />
             </a>
           </li>

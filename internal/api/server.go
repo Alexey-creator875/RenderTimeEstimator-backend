@@ -24,9 +24,9 @@ func StartServer() {
 	r.LoadHTMLGlob("../../templates/*")
 	r.Static("/static", "../../resources")
 
-	r.GET("/RenderUnits", handler.GetRenderUnits)
-	r.GET("/RenderUnits/:id", handler.GetRenderUnit)
-	r.GET("/AddRenderUnit", handler.GetDraftRenderUnit)
+	r.GET("/RenderServerUnits", handler.GetRenderServerUnits)
+	r.GET("/RenderServerUnits/:id", handler.GetRenderServerUnit)
+	r.GET("/AddRenderServerUnit", handler.GetDraftRenderServerUnit)
 	
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

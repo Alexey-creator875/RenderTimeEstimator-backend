@@ -19,13 +19,13 @@ func NewHandler(r *repository.Repository) *Handler {
   	}
 }
 
-func (h *Handler) GetRenderUnits(ctx *gin.Context) {
-	var renderUnits []repository.RenderUnit
+func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
+	var renderServerUnits []repository.RenderServerUnit
 	var err error
 
 	searchQuery := ctx.Query("query")
 	if searchQuery == "" {
-		renderUnits, err = h.Repository.GetPublishedRenderUnits()
+		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnits()
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -36,19 +36,19 @@ func (h *Handler) GetRenderUnits(ctx *gin.Context) {
 			return
 		}
 
-		renderUnits, err = h.Repository.GetPublishedRenderUnitsByRAM(ram) // в ином случае ищем заказ по заголовку
+		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(ram) // в ином случае ищем заказ по заголовку
 		if err != nil {
 			logrus.Error(err)
 		}
 	}
 
-	ctx.HTML(http.StatusOK, "renderUnits.html", gin.H{
-		"renderUnits": renderUnits,
+	ctx.HTML(http.StatusOK, "renderServerUnits.html", gin.H{
+		"renderServerUnits": renderServerUnits,
 		"query":  searchQuery,
 	})
 }
 
-func (h *Handler) GetRenderUnit(ctx *gin.Context) {
+func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
     idStr := ctx.Param("id")
     id, err := strconv.Atoi(idStr)
     if err != nil {
@@ -57,15 +57,15 @@ func (h *Handler) GetRenderUnit(ctx *gin.Context) {
     }
 
     nextParam := ctx.Query("next")
-    var renderUnit repository.RenderUnit
+    var renderServerUnit repository.RenderServerUnit
 
     switch  nextParam{
     case "":
-        renderUnit, err = h.Repository.GetRenderUnit(id)
+        renderServerUnit, err = h.Repository.GetRenderServerUnit(id)
     case "true":
-		renderUnit, err = h.Repository.GetNextPublishedRenderUnitTo(id)
+		renderServerUnit, err = h.Repository.GetNextPublishedRenderServerUnitTo(id)
         if err == nil {
-            ctx.Redirect(http.StatusFound, "/RenderUnits/"+strconv.Itoa(renderUnit.ID))
+            ctx.Redirect(http.StatusFound, "/RenderServerUnits/"+strconv.Itoa(renderServerUnit.ID))
             return
         }
     default:
@@ -81,17 +81,17 @@ func (h *Handler) GetRenderUnit(ctx *gin.Context) {
     }
 
     ctx.HTML(http.StatusOK, "video.html", gin.H{
-        "renderUnit": renderUnit,
+        "renderServerUnit": renderServerUnit,
     })
 }
 
-func (h *Handler) GetDraftRenderUnit(ctx *gin.Context) {
-	renderUnit, err := h.Repository.GetDraftRenderUnit()
+func (h *Handler) GetDraftRenderServerUnit(ctx *gin.Context) {
+	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit()
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	ctx.HTML(http.StatusOK, "addRenderUnit.html", gin.H{
-		"renderUnit":renderUnit,
+	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
+		"renderServerUnit":renderServerUnit,
 	})
 }

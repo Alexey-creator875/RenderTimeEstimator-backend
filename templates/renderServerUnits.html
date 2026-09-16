@@ -5,19 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Render Time Estimator</title>
-    <link rel="stylesheet" href="/static/styles/renderUnits_style.css">
+    <link rel="stylesheet" href="/static/styles/renderServerUnits_style.css">
   </head>
   <body>
     <div class="space">
       <div class="container">
         <div class="grid-container">
-          <form action="/RenderUnits" method="GET">
+          <form action="/RenderServerUnits" method="GET">
             <input type="text" name="query" placeholder="Введите объём памяти" value="{{ .query }}">
             <button type="submit">Найти</button>
           </form>
           
           <ul class="cards-list">
-            {{ range .renderUnits }}
+            {{ range .renderServerUnits }}
             <li class="card">
               <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" alt="4090" class="card-image" />
 
@@ -31,22 +31,9 @@
                     <img src="/static/img/blue-like.png" alt="Лайк" class="like-icon" />
                     <span class="likes-count">{{ .Likes }}</span>
                   </div>
-                  <a href="/RenderUnits/{{ .ID }}" class="card-btn">Выбрать</a>
+                  <a href="/RenderServerUnits/{{ .ID }}" class="card-btn">Выбрать</a>
                 </div>
               </div>
-
-
-              <!-- <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" class="image">
-              <div class="short-description">
-                <p class="title">{{ .Processor }}</p>
-                <p>{{ .Cores }}</p>
-                <p>{{ .RAM }}</p>
-              </div>
-              <div class="likes">
-                <img src="/static/img/blue-like.png" alt="лайк">
-                <span>{{ .Likes }}</span>
-              </div>
-              <a href="/RenderUnits/{{ .ID }}" class="card-button">Подробнее</a>  -->
             </li>
             {{ end }}
           </ul>
@@ -56,17 +43,17 @@
       <div class="nav">
         <ul class="nav-list">
           <li>
-            <a href="/RenderUnits/1">
+            <a href="/RenderServerUnits/1">
               <img src="/static/img/home.png" alt="Лента" />
             </a>
           </li>
           <li>
-            <a href="/AddRenderUnit">
+            <a href="/AddRenderServerUnit">
               <img src="/static/img/add.png" alt="Добавление" />
             </a>
           </li>
           <li class="active">
-            <a href="/RenderUnits">
+            <a href="/RenderServerUnits">
               <img src="/static/img/grid.png" alt="Плитка" />
             </a>
           </li>
