@@ -16,9 +16,15 @@
           </div>
 
           <div class="overlay">
+            
+
             <div class="overlay-left">
-              <div class="title">{{ .renderServerUnit.Processor }}</div>
-              <div class="description">{{ .renderServerUnit.Description }}</div>
+              <p class="title">{{ .renderServerUnit.Processor }}</p>
+
+              <div class="description-block">
+                <p class="description">{{ .renderServerUnit.Description }}</p>
+                <span class="desc-toggle">ЕЩЁ</span>
+              </div>
             </div>
 
             <div class="overlay-right">
@@ -54,5 +60,24 @@
         </ul>
       </div>
     </div>
+
+    <script>
+      document.querySelectorAll('.description-block').forEach(block => {
+        const desc = block.querySelector('.description');
+        const toggle = block.querySelector('.desc-toggle');
+
+        // Проверяем, обрезан ли текст. Если нет — прячем тумблер
+        if (desc.scrollHeight <= desc.clientHeight) {
+          toggle.style.display = 'none';
+          return;
+        }
+
+        toggle.addEventListener('click', () => {
+          block.classList.toggle('expanded');
+          toggle.textContent = block.classList.contains('expanded') ? 'СВЕРНУТЬ' : 'ЕЩЁ';
+        });
+      });
+    </script>
+  
   </body>
 </html>

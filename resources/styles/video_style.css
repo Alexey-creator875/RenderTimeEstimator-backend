@@ -102,13 +102,69 @@ html, body {
 
 /* Левый блок – прижат к низу */
 .overlay-left {
-  align-self: flex-end;           /* прижимаем к нижнему краю */
+  align-self: flex-end;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   color: #fff;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
-  pointer-events: auto;           /* чтобы текст не мешал кликам на видео, можно оставить auto, если нужно выделение */
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  flex: 1;                  /* ← растягивается на всё доступное место */
+  min-width: 0;             /* ← чтобы flex не сжимал */
+  margin-right: 12px;       /* небольшой отступ от иконок справа */
+}
+
+.description-block {
+  position: relative;       /* для абсолютного позиционирования тумблера */
+}
+
+.description {
+  width: 100%;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: #fff;
+
+  /* Обрезка до 2 строк */
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Развёрнутое состояние */
+.description-block.expanded .description {
+  display: block;
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.desc-toggle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+
+  /* лёгкий градиент, чтобы «…» не мешало читать */
+  padding-left: 32px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.55) 35%);
+}
+
+/* Когда развёрнуто — тумблер уходит в поток, в конец текста */
+.description-block.expanded .desc-toggle {
+  position: static;
+  display: block;          /* ← занимает всю строку */
+  text-align: right;       /* ← текст внутри прижат вправо */
+  background: none;
+  padding-left: 0;
+  margin-top: 4px;
 }
 
 .title {
@@ -116,13 +172,6 @@ html, body {
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
-}
-
-.description {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  margin: 0;
-  max-width: 70%;                /* чтобы не перекрывало иконки */
 }
 
 .overlay-right {
