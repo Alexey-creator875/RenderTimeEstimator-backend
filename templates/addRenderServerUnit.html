@@ -12,14 +12,22 @@
       <div class="container">
         <div class="add-container">
           <form class="add-form">
-            <div class="form-section">
-              <div class="form-group">
-                <label for="image">Изображение</label>
-                <input type="file" id="image" name="image" accept="image/*" />
+            <div class="form-section media-section">
+              <div class="media-upload">
+                <label for="image" class="media-label">
+                  <img id="image-preview" src="/static/img/image-placeholder.png" alt="Превью изображения" />
+                </label>
+                <input type="file" id="image" name="image" accept="image/*" hidden />
+                <p class="media-caption">Изображение</p>
               </div>
-              <div class="form-group">
-                <label for="video">Видео</label>
-                <input type="file" id="video" name="video" accept="video/*" />
+
+              <div class="media-upload">
+                <label for="video" class="media-label">
+                  <video id="video-preview" muted playsinline style="display: none;"></video>
+                  <img id="video-placeholder" src="/static/img/image-placeholder.png" alt="Превью видео" />
+                </label>
+                <input type="file" id="video" name="video" accept="video/*" hidden />
+                <p class="media-caption">Видео</p>
               </div>
             </div>
 
@@ -61,5 +69,43 @@
         </ul>
       </div>
     </div>
+
+    <script>
+      // ===== Изображение =====
+      const imageInput = document.getElementById('image');
+      const imagePreview = document.getElementById('image-preview');
+
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        // Отзываем предыдущий URL, если он был (чтобы не копить память)
+        if (imagePreview.dataset.objectUrl) {
+          URL.revokeObjectURL(imagePreview.dataset.objectUrl);
+        }
+        const url = URL.createObjectURL(file);
+        imagePreview.src = url;
+        imagePreview.dataset.objectUrl = url;
+      });
+
+      // ===== Видео =====
+      const videoInput = document.getElementById('video');
+      const videoPreview = document.getElementById('video-preview');
+      const videoPlaceholder = document.getElementById('video-placeholder');
+
+      videoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (videoPreview.dataset.objectUrl) {
+          URL.revokeObjectURL(videoPreview.dataset.objectUrl);
+        }
+        const url = URL.createObjectURL(file);
+        videoPreview.src = url;
+        videoPreview.dataset.objectUrl = url;
+
+        // Меняем заглушку на плеер
+        videoPreview.style.display = 'block';
+        videoPlaceholder.style.display = 'none';
+      });
+    </script>
   </body>
 </html>

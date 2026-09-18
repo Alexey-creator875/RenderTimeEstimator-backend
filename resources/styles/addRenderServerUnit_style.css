@@ -83,6 +83,58 @@ html, body {
   cursor: pointer;
 }
 
+/* ===== Секция с медиа ===== */
+.media-section {
+  display: flex;
+  flex-direction: row;      /* ← вот это переопределяет column от .form-section */
+  gap: 20px;
+}
+
+.media-upload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;              /* чтобы flex мог сжимать */
+}
+
+/* ===== Кликабельное превью ===== */
+.media-label {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;       /* квадрат, адаптивный */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.media-label:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Все элементы внутри превью (img, video) — на весь блок */
+.media-label img,
+.media-label video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* обрезаем по краям, если пропорции не совпадают */
+  display: block;
+}
+
+/* ===== Подпись под превью ===== */
+.media-caption {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+
 .nav {
   position: fixed;
   bottom: 0;
