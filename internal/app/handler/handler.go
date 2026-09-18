@@ -90,7 +90,7 @@ func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
         return
     }
 
-    ctx.HTML(http.StatusOK, "video.html", gin.H{
+    ctx.HTML(http.StatusOK, "feedRenderServerUnits.html", gin.H{
         "renderServerUnit": renderServerUnit,
     })
 }
