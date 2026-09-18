@@ -103,7 +103,7 @@ func (r *Repository) GetRenderServerUnit(id int) (RenderServerUnit, error) {
 	return RenderServerUnit{}, fmt.Errorf("заказ не найден")
 }
 
-func (r *Repository) GetPublishedRenderServerUnitsByRAM(ram int) ([]RenderServerUnit, error) {
+func (r *Repository) GetPublishedRenderServerUnitsByRAM(min_ram int, max_ram int) ([]RenderServerUnit, error) {
 	renderServerUnits, err := r.GetRenderServerUnits()
 	if err != nil {
 		return []RenderServerUnit{}, err
@@ -111,7 +111,7 @@ func (r *Repository) GetPublishedRenderServerUnitsByRAM(ram int) ([]RenderServer
 
 	var result []RenderServerUnit
 	for _, renderServerUnit := range renderServerUnits {
-		if renderServerUnit.RAM == ram && renderServerUnit.Status == "published" {
+		if renderServerUnit.RAM >= min_ram && renderServerUnit.RAM <= max_ram && renderServerUnit.Status == "published" {
 			result = append(result, renderServerUnit)
 		}
 	}

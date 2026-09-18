@@ -23,20 +23,29 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 	var renderServerUnits []repository.RenderServerUnit
 	var err error
 
-	searchQuery := ctx.Query("query")
-	if searchQuery == "" {
+	// searchQuery := ctx.Query("query")
+
+	min := ctx.Query("min")
+	max := ctx.Query("max")
+	if min == "" && max == "" {
 		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnits()
 		if err != nil {
 			logrus.Error(err)
 		}
 	} else {
-		ram, err := strconv.Atoi(searchQuery)
+		min_ram, err := strconv.Atoi(min)
 		if err != nil {
 			logrus.Error(err)
 			return
 		}
 
-		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(ram) // в ином случае ищем заказ по заголовку
+		max_ram, err := strconv.Atoi(max)
+		if err != nil {
+			logrus.Error(err)
+			return
+		}
+
+		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(min_ram, max_ram)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -44,7 +53,8 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 
 	ctx.HTML(http.StatusOK, "renderServerUnits.html", gin.H{
 		"renderServerUnits": renderServerUnits,
-		"query":  searchQuery,
+		"min":  min,
+		"max": max,
 	})
 }
 
