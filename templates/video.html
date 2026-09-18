@@ -16,8 +16,6 @@
           </div>
 
           <div class="overlay">
-            
-
             <div class="overlay-left">
               <p class="title">{{ .renderServerUnit.Processor }}</p>
 
@@ -27,15 +25,28 @@
               </div>
             </div>
 
-            <div class="overlay-right">
-              <div>
+            <ul class="overlay-right">
+              <li class="overlay-item">
                 <img src="/static/img/like.png" alt="Лайк" class="icon like-icon" />
-                <p>{{ .renderServerUnit.Likes }}</p>
-              </div>
-              <a href="/RenderServerUnits/{{ .renderServerUnit.ID }}?next=true">
-                <img src="/static/img/next.png" alt="Следующее" class="icon next-icon" />
-              </a>
-            </div>
+                <p class="item-value">{{ .renderServerUnit.Likes }}</p>
+              </li>
+
+              <li class="overlay-item">
+                <img src="/static/img/cores.png" alt="Ядра" class="icon cores-icon" />
+                <p class="item-value">{{ .renderServerUnit.Cores }}</p>
+              </li>
+
+              <li class="overlay-item">
+                <img src="/static/img/RAM.png" alt="Память" class="icon memory-icon" />
+                <p class="item-value">{{ .renderServerUnit.RAM }}</p>
+              </li>
+
+              <li class="overlay-item">
+                <a href="/RenderServerUnits/{{ .renderServerUnit.ID }}?next=true">
+                  <img src="/static/img/next.png" alt="Следующее" class="icon next-icon" />
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
