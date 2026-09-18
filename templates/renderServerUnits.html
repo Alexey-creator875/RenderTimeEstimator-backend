@@ -44,7 +44,7 @@
                 <div class="card-footer">
                   <div class="card-likes">
                     <img src="/static/img/blue-like.png" alt="Лайк" class="like-icon" />
-                    <span class="likes-count">{{ .Likes }}</span>
+                    <span class="likes-count">{{ len .Likes }}</span>
                   </div>
                   <a href="/RenderServerUnits/{{ .ID }}" class="card-btn">Выбрать</a>
                 </div>
