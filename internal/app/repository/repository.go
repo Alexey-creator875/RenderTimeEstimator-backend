@@ -45,7 +45,7 @@ func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
 			Description: "Флагманская карта с 24 ГБ видеопамяти. Мгновенный рендеринг сложных сцен, работа с нейросетями и 8K-видео. Профессиональный инструмент для 3D-художников и дата-сайентистов.",
 			Likes: 243,
 			ImagePath: "3090.jpg",
-			VideoPath: "2080-Ti.mp4",
+			VideoPath: "3090.mp4",
 		},
 		{
 			ID:    3,
@@ -56,7 +56,7 @@ func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
 			Description: "Абсолютный лидер производительности. Справляется с самыми тяжёлыми задачами: симуляция физики, объёмная визуализация, рендеринг в реальном времени. Будущее уже сегодня.",
 			Likes: 377,
 			ImagePath: "4090.png",
-			VideoPath: "2080-Ti.mp4",
+			VideoPath: "4090.mp4",
 		},
 		{
 			ID:    4,

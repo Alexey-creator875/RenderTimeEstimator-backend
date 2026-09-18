@@ -23,11 +23,11 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 	var renderServerUnits []repository.RenderServerUnit
 	var err error
 
-	// searchQuery := ctx.Query("query")
-
 	min := ctx.Query("min")
 	max := ctx.Query("max")
 	if min == "" && max == "" {
+		min = "8"
+		max = "128"
 		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnits()
 		if err != nil {
 			logrus.Error(err)
