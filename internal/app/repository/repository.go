@@ -28,7 +28,7 @@ func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
 		{
 			ID:    1,
 			Status: "published",
-			Processor: "2080 Ti",
+			Processor: "RTX 2080 Ti",
 			Cores: 20,
 			RAM: 16,
 			Description: "Надёжный выбор для рендеринга и игр. Отличная производительность в 2K и 4K, поддерживает все современные технологии трассировки лучей. Идеально для студийных проектов средней сложности.",
@@ -39,7 +39,7 @@ func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
 		{
 			ID:    2,
 			Status: "published",
-			Processor: "3090",
+			Processor: "RTX 3090",
 			Cores: 20,
 			RAM: 24,
 			Description: "Флагманская карта с 24 ГБ видеопамяти. Мгновенный рендеринг сложных сцен, работа с нейросетями и 8K-видео. Профессиональный инструмент для 3D-художников и дата-сайентистов.",
@@ -50,7 +50,7 @@ func (r *Repository) GetRenderServerUnits() ([]RenderServerUnit, error) {
 		{
 			ID:    3,
 			Status: "published",
-			Processor: "4090",
+			Processor: "RTX 4090",
 			Cores: 20,
 			RAM: 24,
 			Description: "Абсолютный лидер производительности. Справляется с самыми тяжёлыми задачами: симуляция физики, объёмная визуализация, рендеринг в реальном времени. Будущее уже сегодня.",
