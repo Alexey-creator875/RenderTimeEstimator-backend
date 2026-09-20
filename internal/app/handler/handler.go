@@ -2,8 +2,6 @@ package handler
 
 import (
 	"RenderTimeEstimator/internal/app/repository"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -19,89 +17,21 @@ func NewHandler(r *repository.Repository) *Handler {
   	}
 }
 
-func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
-	var renderServerUnits []repository.RenderServerUnit
-	var err error
-
-	min := ctx.Query("min")
-	max := ctx.Query("max")
-	if min == "" && max == "" {
-		min = "8"
-		max = "128"
-		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnits()
-		if err != nil {
-			logrus.Error(err)
-		}
-	} else {
-		min_ram, err := strconv.Atoi(min)
-		if err != nil {
-			logrus.Error(err)
-			return
-		}
-
-		max_ram, err := strconv.Atoi(max)
-		if err != nil {
-			logrus.Error(err)
-			return
-		}
-
-		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(min_ram, max_ram)
-		if err != nil {
-			logrus.Error(err)
-		}
-	}
-
-	ctx.HTML(http.StatusOK, "renderServerUnits.html", gin.H{
-		"renderServerUnits": renderServerUnits,
-		"min":  min,
-		"max": max,
-	})
+func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/RenderServerUnits", h.GetRenderServerUnits)
+	router.GET("/RenderServerUnits/:id", h.GetRenderServerUnit)
+	router.GET("/AddRenderServerUnit", h.GetDraftRenderServerUnit)
 }
 
-func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
-    idStr := ctx.Param("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        logrus.Error(err)
-        return
-    }
-
-    nextParam := ctx.Query("next")
-    var renderServerUnit repository.RenderServerUnit
-
-    switch  nextParam{
-    case "":
-        renderServerUnit, err = h.Repository.GetRenderServerUnit(id)
-    case "true":
-		renderServerUnit, err = h.Repository.GetNextPublishedRenderServerUnitTo(id)
-        if err == nil {
-            ctx.Redirect(http.StatusFound, "/RenderServerUnits/"+strconv.Itoa(renderServerUnit.ID))
-            return
-        }
-    default:
-        logrus.Error(err)
-        ctx.String(http.StatusBadRequest, "параметр next должен быть true или отсутствовать")
-        return
-    }
-
-    if err != nil {
-        logrus.Error(err)
-        ctx.String(http.StatusNotFound, "запись не найдена")
-        return
-    }
-
-    ctx.HTML(http.StatusOK, "feedRenderServerUnits.html", gin.H{
-        "renderServerUnit": renderServerUnit,
-    })
+func (h *Handler) RegisterStatic(router *gin.Engine) {
+	router.LoadHTMLGlob("./templates/*")
+	router.Static("/static", "./resources")
 }
 
-func (h *Handler) GetDraftRenderServerUnit(ctx *gin.Context) {
-	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit()
-	if err != nil {
-		logrus.Error(err)
-	}
-
-	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
-		"renderServerUnit":renderServerUnit,
+func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
+	logrus.Error(err.Error())
+	ctx.JSON(errorStatusCode, gin.H{
+		"status":      "error",
+		"description": err.Error(),
 	})
 }
