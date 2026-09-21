@@ -34,7 +34,7 @@
           <ul class="cards-list">
             {{ range .renderServerUnits }}
             <li class="card">
-              <img src="http://localhost:9000/render-assets/{{ .ImagePath }}" alt="4090" class="card-image" />
+              <img src="{{ .Image }}" alt="4090" class="card-image" />
 
               <div class="card-body">
                 <h3 class="card-title">{{ .Processor }}</h3>
@@ -44,7 +44,7 @@
                 <div class="card-footer">
                   <div class="card-likes">
                     <img src="/static/img/blue-like.png" alt="Лайк" class="like-icon" />
-                    <span class="likes-count">{{ len .Likes }}</span>
+                    <span class="likes-count">-</span>
                   </div>
                   <a href="/RenderServerUnits/{{ .ID }}" class="card-btn">Выбрать</a>
                 </div>

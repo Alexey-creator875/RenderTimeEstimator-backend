@@ -12,7 +12,7 @@
       <div class="container">
         <div class="video-container">
           <div class="video-wrapper">
-            <video src="http://localhost:9000/render-assets/{{ .renderServerUnit.VideoPath }}" autoplay muted loop playsinline></video>
+            <video src="{{ .renderServerUnit.Video }}" autoplay muted loop playsinline></video>
           </div>
 
           <div class="overlay">
@@ -28,7 +28,7 @@
             <ul class="overlay-right">
               <li class="overlay-item">
                 <img src="/static/img/like.png" alt="Лайк" class="icon like-icon" />
-                <p class="item-value">{{ len .renderServerUnit.Likes }}</p>
+                <p class="item-value">-</p>
               </li>
 
               <li class="overlay-item">
