@@ -91,3 +91,13 @@ func (r *Repository) AddDraftRenderServerUnit(renderServerUnit ds.RenderServerUn
 
 	return nil
 }
+
+func (r *Repository) UpdateRenderServerUnit(renderServerUnit ds.RenderServerUnit) error {
+	err := r.db.Save(&renderServerUnit).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

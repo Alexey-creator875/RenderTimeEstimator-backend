@@ -122,3 +122,43 @@ func (h *Handler) AddDraftRenderServerUnit(ctx *gin.Context) {
 		"hasDraft": true,
 	})
 }
+
+func (h *Handler) PublishRenderServerUnit(ctx *gin.Context) {
+	coresString := ctx.PostForm("cores")
+	ramString := ctx.PostForm("ram")
+	description := ctx.PostForm("description")
+	creatorID := uint(1)
+
+	cores, err := strconv.Atoi(coresString)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	ram, err := strconv.Atoi(ramString)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	renderServerUnit, _, err := h.Repository.GetDraftRenderServerUnit(creatorID)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	renderServerUnit.Status = "published"
+	renderServerUnit.Cores = cores
+	renderServerUnit.RAM = ram
+	renderServerUnit.Description = description
+
+	err = h.Repository.UpdateRenderServerUnit(renderServerUnit)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
+		"hasDraft": false,
+	})
+}

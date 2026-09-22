@@ -11,10 +11,10 @@
     <div class="space">
       <div class="container">
         <div class="add-container">
-          <form class="add-form" action="/AddRenderServerUnit" method="POST">
 
-            {{ if .hasDraft }}
+          {{ if .hasDraft }}
 
+          <form class="add-form" action="/PublishRenderServerUnit" method="POST">
             <div class="form-section media-section">
               <div class="media-upload">
                 <div class="media-label">
@@ -56,9 +56,10 @@
             </div>
 
             <button type="submit" class="submit-btn">Опубликовать</button>
+          </form>
 
-            {{ else }}
-
+          {{ else }}
+          <form class="add-form" action="/AddRenderServerUnit" method="POST">
             <div class="form-section media-section">
               <div class="media-upload">
                 <label for="image" class="media-label">
@@ -87,8 +88,9 @@
             </div>
 
             <button type="submit" class="submit-btn">Далее</button>
+          </form>
 
-            {{ end }}
+          {{ end }}
 
           </form>
         </div>
