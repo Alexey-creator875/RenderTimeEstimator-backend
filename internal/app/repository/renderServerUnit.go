@@ -2,7 +2,10 @@ package repository
 
 import (
 	"RenderTimeEstimator/internal/app/ds"
+	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 func (r *Repository) GetRenderServerUnits() ([]ds.RenderServerUnit, error) {
@@ -52,15 +55,19 @@ func (r *Repository) GetPublishedRenderServerUnitsByRAM(min_ram int, max_ram int
 	return renderServerUnits, nil
 }
 
-func (r *Repository) GetDraftRenderServerUnit() (ds.RenderServerUnit, error) {
-	renderServerUnit := ds.RenderServerUnit{}
-	err := r.db.Where("status = ?", "draft").First(&renderServerUnit).Error
+func (r *Repository) GetDraftRenderServerUnit(creatorID uint) (ds.RenderServerUnit, bool, error) {
+	draftRenderServerUnit := ds.RenderServerUnit{}
+	err := r.db.Where("status = ? AND creator_id = ?", "draft", creatorID).Take(&draftRenderServerUnit).Error
 
 	if err != nil {
-		return ds.RenderServerUnit{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ds.RenderServerUnit{}, false, nil
+		} else {
+			return ds.RenderServerUnit{}, false, err
+		}
 	}
 
-	return renderServerUnit, nil
+	return draftRenderServerUnit, true, nil
 }
 
 
@@ -73,4 +80,14 @@ func (r *Repository) GetNextPublishedRenderServerUnitTo(id int) (ds.RenderServer
 	}
 
 	return next, nil
+}
+
+func (r *Repository) AddDraftRenderServerUnit(renderServerUnit ds.RenderServerUnit) error {
+	err := r.db.Create(&renderServerUnit).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

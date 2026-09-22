@@ -87,12 +87,38 @@ func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
 }
 
 func (h *Handler) GetDraftRenderServerUnit(ctx *gin.Context) {
-	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit()
+	creatorID := uint(1)
+ 
+	draftRenderServerUnit, hasDraft, err := h.Repository.GetDraftRenderServerUnit(creatorID)
+
 	if err != nil {
 		logrus.Error(err)
 	}
 
 	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
-		"renderServerUnit":renderServerUnit,
+		"renderServerUnit": draftRenderServerUnit,
+		"hasDraft": hasDraft,
+	})
+}
+
+func (h *Handler) AddDraftRenderServerUnit(ctx *gin.Context) {
+	processor := ctx.PostForm("processor")
+	creatorID := uint(1)
+
+	draftRenderServerUnit := ds.RenderServerUnit{
+		Status: "draft",
+		Processor: processor,
+		CreatorID: creatorID,
+	}
+
+	err := h.Repository.AddDraftRenderServerUnit(draftRenderServerUnit)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
+		"renderServerUnit": draftRenderServerUnit,
+		"hasDraft": true,
 	})
 }

@@ -11,21 +11,21 @@
     <div class="space">
       <div class="container">
         <div class="add-container">
-          <form class="add-form" action="/RenderUnits/Add" method="POST">
+          <form class="add-form" action="/AddRenderServerUnit" method="POST">
 
-            {{ if .HasDraft }}
+            {{ if .hasDraft }}
 
             <div class="form-section media-section">
               <div class="media-upload">
                 <div class="media-label">
-                  <img src="/static/img/default-image.png" alt="Изображение по умолчанию" />
+                  <img src="/static/img/image-placeholder.png" alt="Изображение по умолчанию" />
                 </div>
                 <p class="media-caption">Изображение</p>
               </div>
 
               <div class="media-upload">
                 <div class="media-label">
-                  <video src="/static/img/default-video.mp4" muted playsinline></video>
+                  <img src="/static/img/image-placeholder.png" alt="Видео по умолчанию" />
                 </div>
                 <p class="media-caption">Видео</p>
               </div>
@@ -35,23 +35,23 @@
               <div class="form-group">
                 <label for="processor">Процессор</label>
                 <input type="text" id="processor" name="processor"
-                      value="{{ .Draft.Processor }}" readonly />
+                      value="{{ .renderServerUnit.Processor }}" readonly />
               </div>
 
               <div class="form-group">
                 <label for="cores">Количество ядер</label>
                 <input type="text" id="cores" name="cores"
-                      placeholder="Например: 20" value="{{ .Draft.Cores }}" />
+                      placeholder="Например: 20" />
               </div>
               <div class="form-group">
                 <label for="ram">Объём RAM (ГБ)</label>
                 <input type="text" id="ram" name="ram"
-                      placeholder="Например: 32" value="{{ .Draft.RAM }}" />
+                      placeholder="Например: 32" />
               </div>
               <div class="form-group">
                 <label for="description">Описание</label>
                 <textarea id="description" name="description" rows="4"
-                          placeholder="Краткое описание">{{ .Draft.Description }}</textarea>
+                          placeholder="Краткое описание"></textarea>
               </div>
             </div>
 
