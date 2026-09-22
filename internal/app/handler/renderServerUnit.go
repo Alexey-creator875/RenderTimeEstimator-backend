@@ -95,8 +95,11 @@ func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
         return
     }
 
+	likes, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
+
     ctx.HTML(http.StatusOK, "feedRenderServerUnits.html", gin.H{
         "renderServerUnit": renderServerUnit,
+		"likes": likes,
     })
 }
 
