@@ -195,18 +195,94 @@ form input[type="text"] {
   font-weight: 500;
 }
 
-/* Синяя кнопка */
+/* Общая высота кнопок в карточке */
+.card {
+  --card-btn-height: 28px;   /* можешь поставить 27 или 28 — как удобнее */
+}
+
+/* ===== Текстовая кнопка (Выбрать) ===== */
 .card-btn {
   background: #007aff;
   color: #fff;
   border: none;
-  padding: 6px 16px;
+  padding: 0 16px;             /* вертикальный padding убран — высота задаётся height */
+  height: var(--card-btn-height);
   border-radius: 5px;
   font-size: 0.8rem;
   text-decoration: none;
   font-weight: 600;
   transition: background 0.2s;
   white-space: nowrap;
+
+  /* выравнивание текста внутри кнопки */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.card-btn:hover {
+  background: #005bbf;
+}
+
+.card-btn:active {
+  transform: scale(0.96);
+}
+
+/* ===== Кнопка-иконка (Удалить) ===== */
+.card-icon-btn {
+  width: var(--card-btn-height);      /* квадрат: ширина = высоте */
+  height: var(--card-btn-height);
+  padding: 0;
+  box-sizing: border-box;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  font: inherit;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.card-icon-btn img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  pointer-events: none;
+}
+
+.card-icon-btn:hover {
+  background: rgba(255, 59, 48, 0.12);
+}
+
+.card-icon-btn:active {
+  transform: scale(0.94);
+}
+
+/* ===== Обёртка кнопок в карточке ===== */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Форма не должна ломать раскладку */
+.delete-form {
+  display: inline-flex;       /* было inline — так надёжнее */
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .card-btn:hover {
@@ -216,6 +292,36 @@ form input[type="text"] {
 /* (дополнительно) чтобы кнопка не сжималась */
 .card-btn:active {
   transform: scale(0.96);
+}
+
+/* Обёртка для кнопок в карточке */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+
+
+/* Убираем дефолтную рамку браузера, если она вдруг проскочит */
+button.card-btn {
+  border: none;
+}
+
+
+.card-icon-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.card-icon-btn:hover {
+  background: rgba(255, 59, 48, 0.1);   /* лёгкий красный фон при наведении */
+}
+
+.card-icon-btn:active {
+  transform: scale(0.94);
 }
 
 /* ===== Форма ===== */

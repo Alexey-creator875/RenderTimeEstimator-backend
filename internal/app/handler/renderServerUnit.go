@@ -162,3 +162,21 @@ func (h *Handler) PublishRenderServerUnit(ctx *gin.Context) {
 		"hasDraft": false,
 	})
 }
+
+func (h *Handler) DeleteRenderServerUnit(ctx *gin.Context) {
+	idString := ctx.PostForm("id")
+
+	id, err := strconv.Atoi(idString)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	err = h.Repository.DeleteRenderServerUnit(id)
+
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	ctx.Redirect(http.StatusFound, "/RenderServerUnits")
+}

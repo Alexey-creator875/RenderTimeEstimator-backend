@@ -23,6 +23,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/AddRenderServerUnit", h.GetDraftRenderServerUnit)
 	router.POST("/AddRenderServerUnit", h.AddDraftRenderServerUnit)
 	router.POST("/PublishRenderServerUnit", h.PublishRenderServerUnit)
+	router.POST("/DeleteRenderServerUnit", h.DeleteRenderServerUnit)
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

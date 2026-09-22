@@ -34,7 +34,7 @@
           <ul class="cards-list">
             {{ range .renderServerUnits }}
             <li class="card">
-              <img src="{{ .Image }}" alt="4090" class="card-image" />
+              <img src="{{ .Image }}" alt="картинка" class="card-image" />
 
               <div class="card-body">
                 <h3 class="card-title">{{ .Processor }}</h3>
@@ -46,7 +46,17 @@
                     <img src="/static/img/blue-like.png" alt="Лайк" class="like-icon" />
                     <span class="likes-count">-</span>
                   </div>
-                  <a href="/RenderServerUnits/{{ .ID }}" class="card-btn">Выбрать</a>
+
+                  <div class="card-actions">
+                    <a href="/RenderServerUnits/{{ .ID }}" class="card-btn">Выбрать</a>
+
+                    <form action="/DeleteRenderServerUnit" method="POST" class="delete-form">
+                      <input type="hidden" name="id" value="{{ .ID }}" />
+                      <button type="submit" class="card-icon-btn" aria-label="Удалить">
+                        <img src="/static/img/trash.png" alt="Удалить" />
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </li>
