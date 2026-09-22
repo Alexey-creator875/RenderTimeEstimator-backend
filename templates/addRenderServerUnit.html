@@ -11,7 +11,54 @@
     <div class="space">
       <div class="container">
         <div class="add-container">
-          <form class="add-form">
+          <form class="add-form" action="/RenderUnits/Add" method="POST">
+
+            {{ if .HasDraft }}
+
+            <div class="form-section media-section">
+              <div class="media-upload">
+                <div class="media-label">
+                  <img src="/static/img/default-image.png" alt="Изображение по умолчанию" />
+                </div>
+                <p class="media-caption">Изображение</p>
+              </div>
+
+              <div class="media-upload">
+                <div class="media-label">
+                  <video src="/static/img/default-video.mp4" muted playsinline></video>
+                </div>
+                <p class="media-caption">Видео</p>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="form-group">
+                <label for="processor">Процессор</label>
+                <input type="text" id="processor" name="processor"
+                      value="{{ .Draft.Processor }}" readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="cores">Количество ядер</label>
+                <input type="text" id="cores" name="cores"
+                      placeholder="Например: 20" value="{{ .Draft.Cores }}" />
+              </div>
+              <div class="form-group">
+                <label for="ram">Объём RAM (ГБ)</label>
+                <input type="text" id="ram" name="ram"
+                      placeholder="Например: 32" value="{{ .Draft.RAM }}" />
+              </div>
+              <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Краткое описание">{{ .Draft.Description }}</textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Опубликовать</button>
+
+            {{ else }}
+
             <div class="form-section media-section">
               <div class="media-upload">
                 <label for="image" class="media-label">
@@ -34,21 +81,15 @@
             <div class="form-section">
               <div class="form-group">
                 <label for="processor">Процессор</label>
-                <input type="text" id="processor" name="processor" placeholder="Например: RTX 4090" />
-              </div>
-              <div class="form-group">
-                <label for="cores">Количество ядер</label>
-                <input type="text" id="cores" name="cores" placeholder="Например: 20" />
-              </div>
-              <div class="form-group">
-                <label for="ram">Объём RAM (ГБ)</label>
-                <input type="text" id="ram" name="ram" placeholder="Например: 32" />
-              </div>
-              <div class="form-group">
-                <label for="description">Описание</label>
-                <textarea id="description" name="description" rows="4" placeholder="Краткое описание"></textarea>
+                <input type="text" id="processor" name="processor"
+                      placeholder="Например: RTX 4090" required />
               </div>
             </div>
+
+            <button type="submit" class="submit-btn">Далее</button>
+
+            {{ end }}
+
           </form>
         </div>
       </div>

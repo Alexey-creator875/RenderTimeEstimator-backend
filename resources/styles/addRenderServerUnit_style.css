@@ -83,6 +83,23 @@ html, body {
   cursor: pointer;
 }
 
+.submit-btn {
+  background: #007aff;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.submit-btn:hover {
+  background: #005bbf;
+}
+
 /* ===== Секция с медиа ===== */
 .media-section {
   display: flex;
