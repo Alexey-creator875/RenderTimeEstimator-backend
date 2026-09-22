@@ -19,6 +19,8 @@ func main() {
 	// Migrate the schema
 	err = db.AutoMigrate(
 		&ds.RenderServerUnit{},
+		&ds.User{},
+		&ds.Likes{},
 	)
 	if err != nil {
 		panic("cant migrate db")
