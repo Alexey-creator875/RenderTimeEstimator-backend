@@ -42,8 +42,22 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 		}
 	}
 
+	likesMap := map[int]int{}
+
+	for _, renderServerUnit := range renderServerUnits {
+		likesNumber, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
+
+		if err != nil {
+			return
+		}
+
+		likesMap[renderServerUnit.ID] = likesNumber
+	}
+
+
 	ctx.HTML(http.StatusOK, "renderServerUnits.html", gin.H{
 		"renderServerUnits": renderServerUnits,
+		"likesMap": likesMap,
 		"min":  min,
 		"max": max,
 	})

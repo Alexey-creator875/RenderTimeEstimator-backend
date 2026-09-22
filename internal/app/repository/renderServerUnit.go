@@ -113,3 +113,18 @@ func (r *Repository) DeleteRenderServerUnit(id int) error {
 
     return nil
 }
+
+func (r *Repository) GetLikesNumber(id int) (int, error) {
+    query := "SELECT COUNT(*) FROM likes WHERE render_server_unit_id = $1"
+
+    row := r.db.Raw(query, id).Row()
+
+    var count int
+	err := row.Scan(&count)
+
+    if  err != nil {
+        return 0, err
+    }
+
+    return count, nil
+}
