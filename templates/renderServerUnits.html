@@ -34,7 +34,7 @@
           <ul class="cards-list">
             {{ range .renderServerUnits }}
             <li class="card">
-              <img src="{{ .Image }}" alt="картинка" class="card-image" />
+              <img src="{{ .Image }}" onerror="this.onerror=null; this.src='/static/img/image-placeholder.png';" alt="картинка" class="card-image" />
 
               <div class="card-body">
                 <h3 class="card-title">{{ .Processor }}</h3>
