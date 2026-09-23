@@ -3,28 +3,13 @@ package repository
 import (
 	"RenderTimeEstimator/internal/app/ds"
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 )
 
-func (r *Repository) GetRenderServerUnits() ([]ds.RenderServerUnit, error) {
-	var renderServerUnits []ds.RenderServerUnit
-	err := r.db.Find(&renderServerUnits).Error
-
-	if err != nil {
-		return nil, err
-	}
-	if len(renderServerUnits) == 0 {
-		return nil, fmt.Errorf("массив пустой")
-	}
-
-	return renderServerUnits, nil
-}
-
-func (r *Repository) GetRenderServerUnit(id int) (ds.RenderServerUnit, error) {
+func (r *Repository) GetPublishedRenderServerUnit(id int) (ds.RenderServerUnit, error) {
 	renderServerUnit := ds.RenderServerUnit{}
-	err := r.db.Where("id = ?", id).First(&renderServerUnit).Error
+	err := r.db.Where("id = ? AND status = ?", id, "published").First(&renderServerUnit).Error
 
 	if err != nil {
 		return ds.RenderServerUnit{}, err

@@ -76,7 +76,7 @@ func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
 
     switch  nextParam{
     case "":
-        renderServerUnit, err = h.Repository.GetRenderServerUnit(id)
+        renderServerUnit, err = h.Repository.GetPublishedRenderServerUnit(id)
     case "true":
 		renderServerUnit, err = h.Repository.GetNextPublishedRenderServerUnitTo(id)
         if err == nil {
