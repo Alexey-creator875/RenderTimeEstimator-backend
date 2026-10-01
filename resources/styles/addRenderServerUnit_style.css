@@ -103,8 +103,8 @@ html, body {
 /* ===== Секция с медиа ===== */
 .media-section {
   display: flex;
-  flex-direction: row;      /* ← вот это переопределяет column от .form-section */
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .media-upload {
@@ -115,17 +115,31 @@ html, body {
   min-width: 0;              /* чтобы flex мог сжимать */
 }
 
+/* или по центру формы: */
+.media-section .media-upload {
+  max-width: 200px;
+  margin: 0 auto;
+}
+
 /* ===== Кликабельное превью ===== */
 .media-label {
   display: block;
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;       /* квадрат, адаптивный */
+  
   border-radius: 12px;
   overflow: hidden;
   background: #f0f0f0;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.media-label-image {
+aspect-ratio: 1 / 1;
+}
+
+.media-label-video {
+  aspect-ratio: 9 / 16;
 }
 
 .media-label:hover {

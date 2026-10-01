@@ -205,7 +205,7 @@ form input[type="text"] {
   background: #007aff;
   color: #fff;
   border: none;
-  padding: 0 16px;             /* вертикальный padding убран — высота задаётся height */
+  padding: 0 10px;             /* вертикальный padding убран — высота задаётся height */
   height: var(--card-btn-height);
   border-radius: 5px;
   font-size: 0.8rem;
