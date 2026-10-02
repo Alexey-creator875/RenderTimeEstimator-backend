@@ -7,17 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *Repository) GetPublishedRenderServerUnit(id int) (ds.RenderServerUnit, error) {
-	renderServerUnit := ds.RenderServerUnit{}
-	err := r.db.Where("id = ? AND status = ?", id, "published").First(&renderServerUnit).Error
-
-	if err != nil {
-		return ds.RenderServerUnit{}, err
-	}
-
-	return renderServerUnit, nil
-}
-
 func (r *Repository) GetPublishedRenderServerUnits() ([]ds.RenderServerUnit, error) {
 	var renderServerUnits []ds.RenderServerUnit
 	err := r.db.Where("status = ?", "published").Find(&renderServerUnits).Error
@@ -27,6 +16,17 @@ func (r *Repository) GetPublishedRenderServerUnits() ([]ds.RenderServerUnit, err
 	}
 
 	return renderServerUnits, nil
+}
+
+func (r *Repository) GetPublishedRenderServerUnit(id int) (ds.RenderServerUnit, error) {
+	renderServerUnit := ds.RenderServerUnit{}
+	err := r.db.Where("id = ? AND status = ?", id, "published").First(&renderServerUnit).Error
+
+	if err != nil {
+		return ds.RenderServerUnit{}, err
+	}
+
+	return renderServerUnit, nil
 }
 
 func (r *Repository) GetPublishedRenderServerUnitsByRAM(min_ram int, max_ram int) ([]ds.RenderServerUnit, error) {
@@ -40,19 +40,19 @@ func (r *Repository) GetPublishedRenderServerUnitsByRAM(min_ram int, max_ram int
 	return renderServerUnits, nil
 }
 
-func (r *Repository) GetDraftRenderServerUnit(creatorID uint) (ds.RenderServerUnit, bool, error) {
+func (r *Repository) GetDraftRenderServerUnit(creatorID uint) (*ds.RenderServerUnit, error) {
 	draftRenderServerUnit := ds.RenderServerUnit{}
 	err := r.db.Where("status = ? AND creator_id = ?", "draft", creatorID).Take(&draftRenderServerUnit).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ds.RenderServerUnit{}, false, nil
-		} else {
-			return ds.RenderServerUnit{}, false, err
+			return nil, nil
 		}
+
+		return &ds.RenderServerUnit{}, err
 	}
 
-	return draftRenderServerUnit, true, nil
+	return &draftRenderServerUnit, nil
 }
 
 
@@ -67,8 +67,8 @@ func (r *Repository) GetNextPublishedRenderServerUnitTo(id int) (ds.RenderServer
 	return next, nil
 }
 
-func (r *Repository) AddDraftRenderServerUnit(renderServerUnit ds.RenderServerUnit) error {
-	err := r.db.Create(&renderServerUnit).Error
+func (r *Repository) AddDraftRenderServerUnit(renderServerUnit *ds.RenderServerUnit) error {
+	err := r.db.Create(renderServerUnit).Error
 
 	if err != nil {
 		return err

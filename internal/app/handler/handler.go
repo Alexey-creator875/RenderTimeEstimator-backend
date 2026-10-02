@@ -18,12 +18,12 @@ func NewHandler(r *repository.Repository) *Handler {
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET("/RenderServerUnits", h.GetRenderServerUnits)
-	router.GET("/RenderServerUnits/:id", h.GetRenderServerUnit)
-	router.GET("/AddRenderServerUnit", h.GetDraftRenderServerUnit)
-	router.POST("/AddRenderServerUnit", h.AddDraftRenderServerUnit)
-	router.POST("/PublishRenderServerUnit", h.PublishRenderServerUnit)
-	router.POST("/DeleteRenderServerUnit", h.DeleteRenderServerUnit)
+	router.GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
+	router.GET("/api/render-server-units/:id", h.GetRenderServerUnitAPI)
+	router.GET("/api/draft-render-server-units", h.GetDraftRenderServerUnitAPI)
+	router.POST("/api/render-server-units", h.AddDraftRenderServerUnitAPI)
+	router.PUT("/api/render-server-units", h.PublishRenderServerUnitAPI)
+	router.DELETE("/api/render-server-units", h.DeleteRenderServerUnitAPI)
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {
@@ -34,7 +34,6 @@ func (h *Handler) RegisterStatic(router *gin.Engine) {
 func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
 	logrus.Error(err.Error())
 	ctx.JSON(errorStatusCode, gin.H{
-		"status":      "error",
 		"description": err.Error(),
 	})
 }

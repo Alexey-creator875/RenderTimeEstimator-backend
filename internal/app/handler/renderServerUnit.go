@@ -9,7 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
+func GetUserID() uint {
+	return uint(1)
+}
+
+func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
 	var err error
 
@@ -54,8 +58,7 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 		likesMap[renderServerUnit.ID] = likesNumber
 	}
 
-
-	ctx.HTML(http.StatusOK, "renderServerUnits.html", gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"renderServerUnits": renderServerUnits,
 		"likesMap": likesMap,
 		"min":  min,
@@ -63,7 +66,7 @@ func (h *Handler) GetRenderServerUnits(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
+func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
     idStr := ctx.Param("id")
     id, err := strconv.Atoi(idStr)
     if err != nil {
@@ -97,50 +100,55 @@ func (h *Handler) GetRenderServerUnit(ctx *gin.Context) {
 
 	likes, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
 
-    ctx.HTML(http.StatusOK, "feedRenderServerUnits.html", gin.H{
-        "renderServerUnit": renderServerUnit,
+	ctx.JSON(http.StatusOK, gin.H{
+		"renderServerUnit": renderServerUnit,
 		"likes": likes,
-    })
-}
-
-func (h *Handler) GetDraftRenderServerUnit(ctx *gin.Context) {
-	creatorID := uint(1)
- 
-	draftRenderServerUnit, hasDraft, err := h.Repository.GetDraftRenderServerUnit(creatorID)
-
-	if err != nil {
-		logrus.Error(err)
-	}
-
-	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
-		"renderServerUnit": draftRenderServerUnit,
-		"hasDraft": hasDraft,
 	})
 }
 
-func (h *Handler) AddDraftRenderServerUnit(ctx *gin.Context) {
-	processor := ctx.PostForm("processor")
-	creatorID := uint(1)
+func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
+	creatorID := GetUserID()
+ 
+	draftRenderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
+
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"renderServerUnit": draftRenderServerUnit,
+	})
+}
+
+func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
+	creatorID := GetUserID()
+
+	err := ctx.Request.ParseMultipartForm(2 << 20)
+
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
 
 	draftRenderServerUnit := ds.RenderServerUnit{
-		Status: "draft",
-		Processor: processor,
-		CreatorID: creatorID,
+		Processor:	ctx.Request.FormValue("name"),
+		CreatorID:	creatorID,
 	}
 
-	err := h.Repository.AddDraftRenderServerUnit(draftRenderServerUnit)
+	err = h.Repository.AddDraftRenderServerUnit(&draftRenderServerUnit)
 
 	if err != nil {
-		logrus.Error(err)
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
-	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
+	ctx.JSON(http.StatusCreated, gin.H{
 		"renderServerUnit": draftRenderServerUnit,
-		"hasDraft": true,
+		"message": "Черновик успешно добавлен",
 	})
 }
 
-func (h *Handler) PublishRenderServerUnit(ctx *gin.Context) {
+func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 	coresString := ctx.PostForm("cores")
 	ramString := ctx.PostForm("ram")
 	description := ctx.PostForm("description")
@@ -158,7 +166,7 @@ func (h *Handler) PublishRenderServerUnit(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	renderServerUnit, _, err := h.Repository.GetDraftRenderServerUnit(creatorID)
+	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
 
 	if err != nil {
 		logrus.Error(err)
@@ -169,18 +177,20 @@ func (h *Handler) PublishRenderServerUnit(ctx *gin.Context) {
 	renderServerUnit.RAM = ram
 	renderServerUnit.Description = description
 
-	err = h.Repository.UpdateRenderServerUnit(renderServerUnit)
+	err = h.Repository.UpdateRenderServerUnit(*renderServerUnit)
 
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
-		"hasDraft": false,
-	})
+	ctx.JSON(http.StatusOK, gin.H{})
+
+	// ctx.HTML(http.StatusOK, "addRenderServerUnit.html", gin.H{
+	// 	"hasDraft": false,
+	// })
 }
 
-func (h *Handler) DeleteRenderServerUnit(ctx *gin.Context) {
+func (h *Handler) DeleteRenderServerUnitAPI(ctx *gin.Context) {
 	idString := ctx.PostForm("id")
 
 	id, err := strconv.Atoi(idString)
@@ -195,5 +205,7 @@ func (h *Handler) DeleteRenderServerUnit(ctx *gin.Context) {
 		logrus.Error(err)
 	}
 
-	ctx.Redirect(http.StatusFound, "/RenderServerUnits")
+	ctx.JSON(http.StatusOK, gin.H{})
+
+	// ctx.Redirect(http.StatusFound, "/RenderServerUnits")
 }
