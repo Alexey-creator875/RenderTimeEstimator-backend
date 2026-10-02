@@ -2,6 +2,8 @@ package handler
 
 import (
 	"RenderTimeEstimator/internal/app/ds"
+	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 
@@ -12,6 +14,55 @@ import (
 func GetUserID() uint {
 	return uint(1)
 }
+
+func isImage(contentType string) bool {
+	imageTypes := []string{
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/gif",
+		"image/webp",
+	}
+
+	for _, t := range imageTypes {
+		if contentType == t {
+			return true
+		}
+	}
+	return false
+}
+
+func validateFileUpload(header *multipart.FileHeader) (int, error) {
+	// Окрываем чтение файлового потока
+	file, err := header.Open()
+
+	if err != nil {
+		return http.StatusBadRequest, fmt.Errorf("не удалось получить файл")
+	}
+
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("не удалось прочитать файл")
+	}
+
+	contentType := http.DetectContentType(buffer)
+
+	if !isImage(contentType) {
+		return http.StatusBadRequest, fmt.Errorf("файл должен быть изображением")
+	}
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("ошибка при обработке файла")
+	}
+
+	return 0, nil
+}
+
 
 func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
@@ -130,8 +181,31 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
+	header, err := ctx.FormFile("image")
+
+	fileFound := false
+
+	if err != nil {
+		if err != http.ErrMissingFile {
+			h.errorHandler(ctx, http.StatusBadRequest, err)
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "File error: " + err.Error()})
+			return
+		}
+	} else {
+		fileFound = true
+	}
+
+	if fileFound {
+		code, err := validateFileUpload(header)
+
+		if err != nil {
+			h.errorHandler(ctx, code, err)
+			return
+		}
+	}
+
 	draftRenderServerUnit := ds.RenderServerUnit{
-		Processor:	ctx.Request.FormValue("name"),
+		Processor:	ctx.Request.FormValue("processor"),
 		CreatorID:	creatorID,
 	}
 
@@ -140,6 +214,13 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
+	}
+
+	if fileFound {
+		if err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), header, ctx); err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{

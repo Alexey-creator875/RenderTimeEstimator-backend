@@ -12,8 +12,8 @@ type RenderServerUnit struct {
 	Cores       int			`json:"cores"`
 	RAM         int			`json:"ram"`
 							
-	CreatedAt	time.Time	`gorm:"autoCreateTime" json:"created_at"`
-	CreatorID	uint		`gorm:"index"           json:"creator_id"`
-	Creator		User		`gorm:"foreignKey:CreatorID" json:"creator"`
-	FormedAt	time.Time	`gorm:"autoUpdateTime"  json:"formed_at"`
+	CreatedAt	time.Time	`gorm:"autoCreateTime" json:"-"`
+	CreatorID	uint		`gorm:"index"           json:"-"`
+	Creator		User		`gorm:"foreignKey:CreatorID" json:"-"`
+	FormedAt	time.Time	`gorm:"autoUpdateTime"  json:"-"`
 }
