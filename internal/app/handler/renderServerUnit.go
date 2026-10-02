@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"slices"
 	"RenderTimeEstimator/internal/app/ds"
 	"fmt"
 	"mime/multipart"
@@ -24,16 +25,22 @@ func isImage(contentType string) bool {
 		"image/webp",
 	}
 
-	for _, t := range imageTypes {
-		if contentType == t {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(imageTypes, contentType)
 }
 
-func validateFileUpload(header *multipart.FileHeader) (int, error) {
-	// Окрываем чтение файлового потока
+func isVideo(contentType string) bool {
+	videoTypes := []string {
+		"video/mp4",
+		"video/webm",
+		"video/quicktime",
+		"video/x-msvideo",
+		"video/x-matroska",
+	}
+	
+	return slices.Contains(videoTypes, contentType)
+}
+
+func validateFileUpload(header *multipart.FileHeader, check func(string) bool) (int, error) {
 	file, err := header.Open()
 
 	if err != nil {
@@ -51,18 +58,12 @@ func validateFileUpload(header *multipart.FileHeader) (int, error) {
 
 	contentType := http.DetectContentType(buffer)
 
-	if !isImage(contentType) {
-		return http.StatusBadRequest, fmt.Errorf("файл должен быть изображением")
-	}
-
-	_, err = file.Seek(0, 0)
-	if err != nil {
-		return http.StatusInternalServerError, fmt.Errorf("ошибка при обработке файла")
+	if !check(contentType) {
+		return http.StatusBadRequest, fmt.Errorf("некорректный файл")
 	}
 
 	return 0, nil
 }
-
 
 func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
@@ -172,8 +173,6 @@ func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
 }
 
 func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
-	creatorID := GetUserID()
-
 	err := ctx.Request.ParseMultipartForm(2 << 20)
 
 	if err != nil {
@@ -181,9 +180,8 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
-	header, err := ctx.FormFile("image")
-
-	fileFound := false
+	imageHeader, err := ctx.FormFile("image")
+	imageFound := false
 
 	if err != nil {
 		if err != http.ErrMissingFile {
@@ -192,11 +190,29 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 			return
 		}
 	} else {
-		fileFound = true
+		imageFound = true
 	}
 
-	if fileFound {
-		code, err := validateFileUpload(header)
+	if imageFound {
+		code, err := validateFileUpload(imageHeader, isImage)
+
+		if err != nil {
+			h.errorHandler(ctx, code, err)
+			return
+		}
+	}
+
+	videoHeader, err := ctx.FormFile("video")
+	videoFound := false
+	if err != nil {
+		if err != http.ErrMissingFile {
+			h.errorHandler(ctx, http.StatusBadRequest, err)
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "File error: " + err.Error()})
+			return
+		}
+	} else {
+		videoFound = true
+		code, err := validateFileUpload(videoHeader, isVideo);
 
 		if err != nil {
 			h.errorHandler(ctx, code, err)
@@ -206,7 +222,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 
 	draftRenderServerUnit := ds.RenderServerUnit{
 		Processor:	ctx.Request.FormValue("processor"),
-		CreatorID:	creatorID,
+		CreatorID:	GetUserID(),
 	}
 
 	err = h.Repository.AddDraftRenderServerUnit(&draftRenderServerUnit)
@@ -216,8 +232,15 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
-	if fileFound {
-		if err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), header, ctx); err != nil {
+	if imageFound {
+		if err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), imageHeader, ctx); err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	if videoFound {
+		if err = h.Repository.AddOrReplaceRenderServerUnitVideo(uint(draftRenderServerUnit.ID), videoHeader, ctx); err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
 			return
 		}

@@ -13,6 +13,30 @@ import (
 	"gorm.io/gorm"
 )
 
+func extensionFor(contentType string) string {
+	switch contentType {
+	case "image/jpeg", "image/jpg":
+		return ".jpg"
+	case "image/png":
+		return ".png"
+	case "image/gif":
+		return ".gif"
+	case "image/webp":
+		return ".webp"
+	case "video/mp4":
+		return ".mp4"
+	case "video/webm":
+		return ".webm"
+	case "video/quicktime":
+		return ".mov"
+	case "video/x-msvideo":
+		return ".avi"
+	case "video/x-matroska":
+		return ".mkv"
+	}
+	return ""
+}
+
 func (r *Repository) GetPublishedRenderServerUnits() ([]ds.RenderServerUnit, error) {
 	var renderServerUnits []ds.RenderServerUnit
 	err := r.db.Where("status = ?", "published").Find(&renderServerUnits).Error
@@ -120,8 +144,6 @@ func (r *Repository) GetLikesNumber(id int) (int, error) {
 }
 
 func (r *Repository) AddOrReplaceRenderServerUnitImage(RenderServerUnitID uint, header *multipart.FileHeader, ctx context.Context) error {
-	filename := strconv.FormatUint(uint64(RenderServerUnitID), 10)
-
 	file, err := header.Open()
 	if err != nil {
 		return fmt.Errorf("ошибка открытия файла: %w", err)
@@ -137,6 +159,7 @@ func (r *Repository) AddOrReplaceRenderServerUnitImage(RenderServerUnitID uint, 
 	}
 
 	contentType := http.DetectContentType(buffer)
+	filename := strconv.FormatUint(uint64(RenderServerUnitID), 10) + "_image" + extensionFor(contentType)
 
 	_, err = file.Seek(0, 0)
 	if err != nil {
@@ -159,7 +182,6 @@ func (r *Repository) AddOrReplaceRenderServerUnitImage(RenderServerUnitID uint, 
 
 	err = r.db.Model(&ds.RenderServerUnit{}).Where("id = ?", RenderServerUnitID).UpdateColumn("Image", "http://127.0.0.1:9000/"+r.minio_bucket_name+"/"+filename).Error
 	if err != nil {
-		// Если не удалось сохранить в БД, удаляем из MinIO
 		r.minio.RemoveObject(
 			ctx,
 			r.minio_bucket_name,
@@ -167,6 +189,50 @@ func (r *Repository) AddOrReplaceRenderServerUnitImage(RenderServerUnitID uint, 
 			minio.RemoveObjectOptions{})
 
 		return fmt.Errorf("ошибка сохранения пути к изображению: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) AddOrReplaceRenderServerUnitVideo(RenderServerUnitID uint, header *multipart.FileHeader, ctx context.Context) error {
+	file, err := header.Open()
+	if err != nil {
+		return fmt.Errorf("ошибка открытия файла: %w", err)
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return fmt.Errorf("ошибка чтения файла: %w", err)
+	}
+
+	contentType := http.DetectContentType(buffer)
+
+	filename := strconv.FormatUint(uint64(RenderServerUnitID), 10) + "_video" + extensionFor(contentType)
+
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("ошибка перемещения по файловому потоку: %w", err)
+	}
+
+	if _, err := r.minio.PutObject(
+		ctx,
+		r.minio_bucket_name,
+		filename,
+		file,
+		header.Size,
+		minio.PutObjectOptions{ContentType: contentType},
+	); err != nil {
+		return fmt.Errorf("не удалось добавить объект в хранилище minio: %w", err)
+	}
+
+	url := "http://127.0.0.1:9000/" + r.minio_bucket_name + "/" + filename
+	err = r.db.Model(&ds.RenderServerUnit{}).
+		Where("id = ?", RenderServerUnitID).
+		UpdateColumn("video", url).Error
+	if err != nil {
+		r.minio.RemoveObject(ctx, r.minio_bucket_name, filename, minio.RemoveObjectOptions{})
+		return fmt.Errorf("ошибка сохранения пути к видео: %w", err)
 	}
 
 	return nil
