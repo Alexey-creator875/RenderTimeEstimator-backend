@@ -117,9 +117,7 @@ func (r *Repository) UpdateRenderServerUnit(renderServerUnit ds.RenderServerUnit
 }
 
 func (r *Repository) DeleteRenderServerUnit(id int) error {
-	query := "UPDATE render_server_units SET status = $1 WHERE id = $2"
-
-	err := r.db.Exec(query, "deleted", id).Error
+	err := r.db.Delete(&ds.RenderServerUnit{}, id).Error
 
 	if err != nil {
 		return err
@@ -142,6 +140,21 @@ func (r *Repository) GetLikesNumber(id int) (int, error) {
 
 	return count, nil
 }
+
+func (r *Repository) IsLikedByUser(renderServerUnitId int, userId int) (bool, error) {
+	query := "SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = $1 AND render_server_unit_id = $2)"
+	row := r.db.Raw(query, userId, renderServerUnitId).Row()
+
+	var exists bool
+	err := row.Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
 
 func (r *Repository) AddOrReplaceRenderServerUnitImage(RenderServerUnitID uint, header *multipart.FileHeader, ctx context.Context) error {
 	file, err := header.Open()
