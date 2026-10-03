@@ -69,6 +69,12 @@ func validateFileUpload(header *multipart.FileHeader, check func(string) bool) (
 	return 0, nil
 }
 
+// type ExtendedRenderServerUnit struct {
+// 	ds.RenderServerUnit
+// 	LikesNumber int		`json:"likes_number"`
+// 	IsMine    	bool	`json:"is_mine"`
+// }
+
 func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
 	var err error
@@ -108,7 +114,14 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	}
 
 	userId := GetUserID()
-	likesMap := map[int]RecordLikes{}
+
+	type ExtendedRenderServerUnit struct {
+		ds.RenderServerUnit
+		LikesNumber int		`json:"likes_number"`
+		IsMine    	bool	`json:"is_mine"`
+	}
+
+	var extendedRenderServerUnits []ExtendedRenderServerUnit
 
 	for _, renderServerUnit := range renderServerUnits {
 		likesNumber, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
@@ -117,21 +130,20 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
 		}
 
-		isLikedByUser, err := h.Repository.IsLikedByUser(renderServerUnit.ID, int(userId))
 
-		if err != nil {
-			h.errorHandler(ctx, http.StatusInternalServerError, err)
+		isMine := renderServerUnit.CreatorID == userId
+
+		extendedRenderServerUnit := ExtendedRenderServerUnit{
+			RenderServerUnit: renderServerUnit,
+			LikesNumber: likesNumber,
+			IsMine: isMine,
 		}
 
-		likesMap[renderServerUnit.ID] = RecordLikes{
-			LikesNumber:   likesNumber,
-			IsLikedByUser: isLikedByUser,
-		}
+		extendedRenderServerUnits = append(extendedRenderServerUnits, extendedRenderServerUnit)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"renderServerUnits": renderServerUnits,
-		"likesMap":          likesMap,
+		"renderServerUnits": extendedRenderServerUnits,
 		"min":               minRamString,
 		"max":               maxRamString,
 	})
