@@ -85,7 +85,7 @@ func (r *Repository) GetDraftRenderServerUnit(creatorID uint) (*ds.RenderServerU
 	return &draftRenderServerUnit, nil
 }
 
-func (r *Repository) GetNextPublishedRenderServerUnitTo(id int) (ds.RenderServerUnit, error) {
+func (r *Repository) GetPublishedRenderServerUnitNextTo(id int) (ds.RenderServerUnit, error) {
 	var next ds.RenderServerUnit
 	err := r.db.Where("id > ?", id).Order("id ASC").First(&next).Error
 
@@ -124,35 +124,6 @@ func (r *Repository) DeleteRenderServerUnit(id int) error {
 	}
 
 	return nil
-}
-
-func (r *Repository) GetLikesNumber(id int) (int, error) {
-	query := "SELECT COUNT(*) FROM likes WHERE render_server_unit_id = $1"
-
-	row := r.db.Raw(query, id).Row()
-
-	var count int
-	err := row.Scan(&count)
-
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
-func (r *Repository) IsLikedByUser(renderServerUnitId int, userId int) (bool, error) {
-	query := "SELECT EXISTS (SELECT 1 FROM likes WHERE user_id = $1 AND render_server_unit_id = $2)"
-	row := r.db.Raw(query, userId, renderServerUnitId).Row()
-
-	var exists bool
-	err := row.Scan(&exists)
-
-	if err != nil {
-		return false, err
-	}
-
-	return exists, nil
 }
 
 

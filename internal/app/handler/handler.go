@@ -27,8 +27,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST("/api/render-server-units/:id/like", h.LikeRenderServerUnitAPI)
 
 	router.POST("/api/sign-up", h.SignUp)
-	router.POST("/api/render-server-units/sign-in", h.SignIn)
-	router.POST("/api/render-server-units/sign-out", h.SignOut)
+	router.POST("/api/sign-in", h.SignIn)
+	router.POST("/api/sign-out", h.SignOut)
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

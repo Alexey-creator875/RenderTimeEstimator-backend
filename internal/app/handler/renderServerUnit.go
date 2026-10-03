@@ -9,12 +9,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
-type RecordLikes struct{
-	LikesNumber		int
-	IsLikedByUser	bool
+type RecordLikes struct {
+	LikesNumber   int
+	IsLikedByUser bool
 }
 
 func GetUserID() uint {
@@ -74,32 +73,37 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
 	var err error
 
-	min := ctx.Query("min")
-	max := ctx.Query("max")
+	minRamString := ctx.Query("min")
+	maxRamString := ctx.Query("max")
 
-	if min == "" && max == "" {
-		min = "8"
-		max = "128"
+	if minRamString == "" && maxRamString == "" {
+		minRamString = "8"
+		maxRamString = "128"
+
 		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnits()
+
 		if err != nil {
-			logrus.Error(err)
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
 		}
 	} else {
-		min_ram, err := strconv.Atoi(min)
+		minRam, err := strconv.Atoi(minRamString)
 		if err != nil {
-			logrus.Error(err)
+			h.errorHandler(ctx, http.StatusBadRequest, err)
 			return
 		}
 
-		max_ram, err := strconv.Atoi(max)
+		maxRam, err := strconv.Atoi(maxRamString)
 		if err != nil {
-			logrus.Error(err)
+			h.errorHandler(ctx, http.StatusBadRequest, err)
 			return
 		}
 
-		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(min_ram, max_ram)
+		renderServerUnits, err = h.Repository.GetPublishedRenderServerUnitsByRAM(minRam, maxRam)
+
 		if err != nil {
-			logrus.Error(err)
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
 		}
 	}
 
@@ -120,7 +124,7 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 		}
 
 		likesMap[renderServerUnit.ID] = RecordLikes{
-			LikesNumber: likesNumber,
+			LikesNumber:   likesNumber,
 			IsLikedByUser: isLikedByUser,
 		}
 	}
@@ -128,16 +132,17 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"renderServerUnits": renderServerUnits,
 		"likesMap":          likesMap,
-		"min":               min,
-		"max":               max,
+		"min":               minRamString,
+		"max":               maxRamString,
 	})
 }
 
 func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
+	idString := ctx.Param("id")
+	id, err := strconv.Atoi(idString)
+
 	if err != nil {
-		logrus.Error(err)
+		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -148,20 +153,14 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 	case "":
 		renderServerUnit, err = h.Repository.GetPublishedRenderServerUnit(id)
 	case "true":
-		renderServerUnit, err = h.Repository.GetNextPublishedRenderServerUnitTo(id)
-		if err == nil {
-			ctx.Redirect(http.StatusFound, "/RenderServerUnits/"+strconv.Itoa(renderServerUnit.ID))
+		renderServerUnit, err = h.Repository.GetPublishedRenderServerUnitNextTo(id)
+
+		if err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
 			return
 		}
 	default:
-		logrus.Error(err)
-		ctx.String(http.StatusBadRequest, "параметр next должен быть true или отсутствовать")
-		return
-	}
-
-	if err != nil {
-		logrus.Error(err)
-		ctx.String(http.StatusNotFound, "запись не найдена")
+		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -175,11 +174,11 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 
 func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
 	creatorID := GetUserID()
-
 	draftRenderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
 
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -188,8 +187,6 @@ func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
 }
 
 func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
-	creatorID := GetUserID()
-
 	err := ctx.Request.ParseMultipartForm(2 << 20)
 
 	if err != nil {
@@ -203,7 +200,6 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	if err != nil {
 		if err != http.ErrMissingFile {
 			h.errorHandler(ctx, http.StatusBadRequest, err)
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "File error: " + err.Error()})
 			return
 		}
 	} else {
@@ -224,7 +220,6 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	if err != nil {
 		if err != http.ErrMissingFile {
 			h.errorHandler(ctx, http.StatusBadRequest, err)
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "File error: " + err.Error()})
 			return
 		}
 	} else {
@@ -237,9 +232,11 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		}
 	}
 
+	creatorID := GetUserID()
+
 	draftRenderServerUnit := ds.RenderServerUnit{
 		Processor: ctx.Request.FormValue("processor"),
-		Status: "draft",
+		Status:    "draft",
 		CreatorID: creatorID,
 	}
 
@@ -251,14 +248,18 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	if imageFound {
-		if err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), imageHeader, ctx); err != nil {
+		err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), imageHeader, ctx)
+
+		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
 			return
 		}
 	}
 
 	if videoFound {
-		if err = h.Repository.AddOrReplaceRenderServerUnitVideo(uint(draftRenderServerUnit.ID), videoHeader, ctx); err != nil {
+		err = h.Repository.AddOrReplaceRenderServerUnitVideo(uint(draftRenderServerUnit.ID), videoHeader, ctx);
+
+		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
 			return
 		}
@@ -272,11 +273,11 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 
 func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 	creatorID := GetUserID()
-
 	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
 
 	if err != nil {
-		logrus.Error(err)
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	coresString := ctx.Request.FormValue("cores")
@@ -303,7 +304,8 @@ func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 	err = h.Repository.UpdateRenderServerUnit(*renderServerUnit)
 
 	if err != nil {
-		logrus.Error(err)
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -314,24 +316,25 @@ func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 
 func (h *Handler) DeleteRenderServerUnitAPI(ctx *gin.Context) {
 	idString := ctx.Param("id")
-
 	id, err := strconv.Atoi(idString)
 
 	if err != nil {
-		logrus.Error(err)
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
 	}
 
 	RenderServerUnit, err := h.Repository.GetPublishedRenderServerUnit(id)
 
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	userID := GetUserID()
 
 	if RenderServerUnit.CreatorID != userID {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"message":          "нет прав для удаления записи",
+			"message": "нет прав для удаления записи",
 		})
 		return
 	}
@@ -340,12 +343,14 @@ func (h *Handler) DeleteRenderServerUnitAPI(ctx *gin.Context) {
 
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message":          "запись успешно удалена",
+		"message": "запись успешно удалена",
 	})
 }
+
 
 type LikeRequest struct {
 	Like bool `json:"like"`
@@ -362,7 +367,7 @@ func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	var likeRequest LikeRequest
-	err = ctx.ShouldBindJSON(&likeRequest);
+	err = ctx.ShouldBindJSON(&likeRequest)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
@@ -377,14 +382,14 @@ func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 	if likeRequest.Like {
 		if !isLikedByUser {
 			like := ds.Likes{
-				UserID: userID,
+				UserID:             userID,
 				RenderServerUnitID: uint(renderServerUnitID),
 			}
 			h.Repository.AddLike(&like)
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"message":          "лайк поставлен",
+			"message": "лайк поставлен",
 		})
 
 		return
@@ -395,6 +400,6 @@ func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-			"message":          "лайк отменён",
-		})
+		"message": "лайк отменён",
+	})
 }

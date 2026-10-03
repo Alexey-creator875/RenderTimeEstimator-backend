@@ -38,7 +38,6 @@ func New(settings *RepositorySettings) (*Repository, error) {
 		return nil, err
 	}
 
-	// Возвращаем указатель на получившийся Repository
 	return &Repository{
 		db:                db,
 		minio:             minioClient,
