@@ -69,12 +69,6 @@ func validateFileUpload(header *multipart.FileHeader, check func(string) bool) (
 	return 0, nil
 }
 
-// type ExtendedRenderServerUnit struct {
-// 	ds.RenderServerUnit
-// 	LikesNumber int		`json:"likes_number"`
-// 	IsMine    	bool	`json:"is_mine"`
-// }
-
 func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
 	var err error
@@ -128,8 +122,8 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 
 		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
 		}
-
 
 		isMine := renderServerUnit.CreatorID == userId
 
@@ -164,6 +158,11 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 	switch nextParam {
 	case "":
 		renderServerUnit, err = h.Repository.GetPublishedRenderServerUnit(id)
+
+		if err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	case "true":
 		renderServerUnit, err = h.Repository.GetPublishedRenderServerUnitNextTo(id)
 
@@ -172,15 +171,29 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 			return
 		}
 	default:
-		h.errorHandler(ctx, http.StatusBadRequest, err)
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("invalid parameter"))
 		return
 	}
 
-	likes, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
+	likesNumber, err := h.Repository.GetLikesNumber(renderServerUnit.ID)
+
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	type ExtendedRenderServerUnit struct {
+		ds.RenderServerUnit
+		LikesNumber int		`json:"likes_number"`
+	}
+
+	extendedRenderServerUnit := ExtendedRenderServerUnit{
+		RenderServerUnit: renderServerUnit,
+		LikesNumber: likesNumber,
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"renderServerUnit": renderServerUnit,
-		"likes":            likes,
+		"renderServerUnit": extendedRenderServerUnit,
 	})
 }
 
@@ -216,9 +229,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		}
 	} else {
 		imageFound = true
-	}
 
-	if imageFound {
 		code, err := validateFileUpload(imageHeader, isImage)
 
 		if err != nil {
@@ -236,6 +247,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		}
 	} else {
 		videoFound = true
+
 		code, err := validateFileUpload(videoHeader, isVideo)
 
 		if err != nil {
@@ -260,7 +272,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	if imageFound {
-		err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), imageHeader, ctx)
+		err = h.Repository.AddOrReplaceRenderServerUnitImage(uint(draftRenderServerUnit.ID), imageHeader, ctx.Request.Context())
 
 		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
@@ -269,7 +281,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	if videoFound {
-		err = h.Repository.AddOrReplaceRenderServerUnitVideo(uint(draftRenderServerUnit.ID), videoHeader, ctx);
+		err = h.Repository.AddOrReplaceRenderServerUnitVideo(uint(draftRenderServerUnit.ID), videoHeader, ctx.Request.Context());
 
 		if err != nil {
 			h.errorHandler(ctx, http.StatusInternalServerError, err)
@@ -289,6 +301,11 @@ func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	if renderServerUnit == nil {
+		h.errorHandler(ctx, http.StatusNotFound, fmt.Errorf("черновик не найден"))
 		return
 	}
 
@@ -397,7 +414,13 @@ func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 				UserID:             userID,
 				RenderServerUnitID: uint(renderServerUnitID),
 			}
-			h.Repository.AddLike(&like)
+
+			err = h.Repository.AddLike(&like)
+
+			if err != nil {
+				h.errorHandler(ctx, http.StatusInternalServerError, err)
+				return
+			}
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
@@ -408,7 +431,12 @@ func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 	}
 
 	if isLikedByUser {
-		h.Repository.DeleteLike(userID, uint(renderServerUnitID))
+		err = h.Repository.DeleteLike(userID, uint(renderServerUnitID))
+
+		if err != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
