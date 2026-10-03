@@ -117,13 +117,15 @@ func (r *Repository) UpdateRenderServerUnit(renderServerUnit ds.RenderServerUnit
 }
 
 func (r *Repository) DeleteRenderServerUnit(id int) error {
-	err := r.db.Delete(&ds.RenderServerUnit{}, id).Error
+	query := "UPDATE render_server_units SET status = $1 WHERE id = $2"
 
-	if err != nil {
-		return err
-	}
+    err := r.db.Exec(query, "deleted", id).Error
 
-	return nil
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
 
 
