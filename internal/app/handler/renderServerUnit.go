@@ -11,11 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RecordLikes struct {
-	LikesNumber   int
-	IsLikedByUser bool
-}
-
 func GetUserID() uint {
 	return uint(1)
 }
@@ -182,14 +177,24 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
+	userID := GetUserID()
+	isLiked, err := h.Repository.IsLikedByUser(renderServerUnit.ID, int(userID))
+
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	type ExtendedRenderServerUnit struct {
 		ds.RenderServerUnit
-		LikesNumber int		`json:"likes_number"`
+		LikesNumber	int		`json:"likes_number"`
+		IsLiked		bool	`json:"is_liked"`
 	}
 
 	extendedRenderServerUnit := ExtendedRenderServerUnit{
 		RenderServerUnit: renderServerUnit,
 		LikesNumber: likesNumber,
+		IsLiked: isLiked,
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
