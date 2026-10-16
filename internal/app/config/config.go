@@ -1,9 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"os"
-	
-    "github.com/joho/godotenv"
+	"time"
+
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -11,22 +13,29 @@ import (
 type Config struct {
 	ServiceHost string
 	ServicePort int
+
+	JWT JWTConfig
+}
+
+type JWTConfig struct {
+	ExpiresIn time.Duration
+	Token     string
 }
 
 func NewConfig() (*Config, error) {
 	var err error
 
-   configName := "config"
-   _ = godotenv.Load()
-   if os.Getenv("CONFIG_NAME") != "" {
-      configName = os.Getenv("CONFIG_NAME")
-   }
+	configName := "config"
+	_ = godotenv.Load()
+	if os.Getenv("CONFIG_NAME") != "" {
+		configName = os.Getenv("CONFIG_NAME")
+	}
 
-   viper.SetConfigName(configName)
-   viper.SetConfigType("toml")
-   viper.AddConfigPath("config")
-   viper.AddConfigPath(".")
-   viper.WatchConfig()
+	viper.SetConfigName(configName)
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("config")
+	viper.AddConfigPath(".")
+	viper.WatchConfig()
 
 	err = viper.ReadInConfig()
 	if err != nil {
@@ -38,6 +47,11 @@ func NewConfig() (*Config, error) {
 	// конвертируем и затем кладем в нашу переменную cfg
 	if err != nil {
 		return nil, err
+	}
+
+	cfg.JWT.Token = os.Getenv("JWT_KEY")
+	if cfg.JWT.Token == "" {
+		return nil, fmt.Errorf("JWT_KEY is empty")
 	}
 
 	log.Info("config parsed")
