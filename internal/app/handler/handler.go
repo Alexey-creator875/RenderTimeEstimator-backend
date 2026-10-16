@@ -29,7 +29,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.DELETE("/api/render-server-units/:id", h.DeleteRenderServerUnitAPI)
 	router.POST("/api/render-server-units/:id/like", h.LikeRenderServerUnitAPI)
 
-	router.POST("/api/sign-up", h.SignUp)
+	router.POST("/api/sign-up", h.Register)
 	router.POST("/api/sign-in", h.Login)
 	router.POST("/api/sign-out", h.SignOut)
 
