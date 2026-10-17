@@ -3,6 +3,7 @@ package handler
 import (
 	"RenderTimeEstimator/internal/app/config"
 	"RenderTimeEstimator/internal/app/repository"
+	"RenderTimeEstimator/internal/app/role"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -21,20 +22,19 @@ func NewHandler(r *repository.Repository, jwtCfg config.JWTConfig) *Handler {
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	// router.GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
+	router.POST("/api/sign-up", h.Register)
+	router.POST("/api/sign-in", h.Login)
+	router.POST("/api/sign-out", h.SignOut)
+
+	router.Use(h.WithAuthCheck(role.Guest, role.Admin)).GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
 	router.GET("/api/render-server-units/:id", h.GetRenderServerUnitAPI)
-	router.GET("/api/draft-render-server-units", h.GetDraftRenderServerUnitAPI)
+
+	router.Use(h.WithAuthCheck(role.Admin)).GET("/api/draft-render-server-units", h.GetDraftRenderServerUnitAPI)
 	router.POST("/api/render-server-units", h.AddDraftRenderServerUnitAPI)
 	router.PUT("/api/render-server-units", h.PublishRenderServerUnitAPI)
 	router.DELETE("/api/render-server-units/:id", h.DeleteRenderServerUnitAPI)
 	router.POST("/api/render-server-units/:id/like", h.LikeRenderServerUnitAPI)
 
-	router.POST("/api/sign-up", h.Register)
-	router.POST("/api/sign-in", h.Login)
-	router.POST("/api/sign-out", h.SignOut)
-
-	auth := router.Group("/", h.WithAuthCheck)
-	auth.GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

@@ -1,6 +1,8 @@
 package ds
 
 import (
+	"RenderTimeEstimator/internal/app/role"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
@@ -8,4 +10,5 @@ import (
 type JWTClaims struct {
 	jwt.StandardClaims
 	UserUUID uuid.UUID `json:"user_uuid"`
+	Role     role.Role
 }

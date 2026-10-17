@@ -9,28 +9,38 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"RenderTimeEstimator/internal/app/ds"
+	"RenderTimeEstimator/internal/app/role"
 )
 
 const jwtPrefix = "Bearer "
 
-func (h *Handler) WithAuthCheck(c *gin.Context) {
-	s := c.GetHeader("Authorization")
-	if !strings.HasPrefix(s, jwtPrefix) {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-	s = s[len(jwtPrefix):]
+func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Context) {
+	return func(gCtx *gin.Context) {
+		jwtStr := gCtx.GetHeader("Authorization")
+		if !strings.HasPrefix(jwtStr, jwtPrefix) {
+			gCtx.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		jwtStr = jwtStr[len(jwtPrefix):]
 
-	token, err := jwt.ParseWithClaims(s, &ds.JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(h.JWT.Token), nil
-	})
-	if err != nil || !token.Valid {
-		logrus.Error(err)
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
+		token, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
+			return []byte(h.JWT.Token), nil
+		})
+		if err != nil {
+			logrus.Error(err)
+			gCtx.AbortWithStatus(http.StatusForbidden)
 
-	claims := token.Claims.(*ds.JWTClaims)
-	c.Set("userUUID", claims.UserUUID)
-	c.Next()
+			return
+		}
+
+		myClaims := token.Claims.(*ds.JWTClaims)
+
+		for _, oneOfAssignedRole := range assignedRoles {
+			if myClaims.Role == oneOfAssignedRole {
+				gCtx.AbortWithStatus(http.StatusForbidden)
+
+				return
+			}
+		}
+	}
 }

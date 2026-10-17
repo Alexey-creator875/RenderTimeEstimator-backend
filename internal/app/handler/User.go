@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -39,9 +38,10 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	if req.Login != login || req.Password != password {
+	user, err := h.Repository.GetUserByLogin(req.Login)
+
+	if req.Login != user.Login || generateHashString(req.Password) != user.Password {
 		c.AbortWithStatus(http.StatusForbidden)
-		logrus.Println("sdklf")
 		return
 	}
 
@@ -52,10 +52,11 @@ func (h *Handler) Login(c *gin.Context) {
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "render-time-estimator",
 		},
-		UserUUID: uuid.New(), // тестовый uuid
+		UserUUID: uuid.New(),
+		Role:     user.Role,
 	})
 
-	str, err := token.SignedString([]byte(h.JWT.Token))
+	strToken, err := token.SignedString([]byte(h.JWT.Token))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -63,7 +64,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, loginResp{
 		ExpiresIn:   h.JWT.ExpiresIn,
-		AccessToken: str,
+		AccessToken: strToken,
 		TokenType:   "Bearer",
 	})
 }
