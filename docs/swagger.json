@@ -1,23 +1,721 @@
 {
-    "schemes": [
-        "https",
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
-        "description": "Bmstu Open IT Platform",
-        "title": "BITOP",
-        "contact": {
-            "name": "API Support",
-            "url": "https://vk.com/bmstu_schedule",
-            "email": "bitop@spatecon.ru"
-        },
-        "license": {
-            "name": "AS IS (NO WARRANTY)"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "127.0.0.1",
-    "basePath": "/",
-    "paths": {}
+    "paths": {
+        "/api/draft-render-server-units": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает черновик услуги, созданный текущим пользователем. Только для создателя.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Получить черновик текущего пользователя",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RenderServerUnitResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/render-server-units": {
+            "get": {
+                "description": "Возвращает опубликованные услуги. Фильтр по RAM: параметры min и max нужно передавать вместе, без них возвращаются все услуги. Доступно без авторизации.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Список опубликованных серверов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Минимальный объём RAM",
+                        "name": "min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный объём RAM",
+                        "name": "max",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RenderServerUnitsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Заполняет поля черновика текущего пользователя и переводит его в статус published.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Опубликовать черновик",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Количество ядер",
+                        "name": "cores",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Объём RAM",
+                        "name": "ram",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Описание",
+                        "name": "description",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RenderServerUnitMessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создаёт черновик с картинкой и видео. Создатель подставляется автоматически. Максимальный размер формы 2 МБ.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Создать черновик услуги",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Название процессора",
+                        "name": "processor",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Изображение (jpeg, png, gif, webp)",
+                        "name": "image",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Видео (mp4, webm, mov, avi, mkv)",
+                        "name": "video",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RenderServerUnitMessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/render-server-units/{id}": {
+            "get": {
+                "description": "Без параметра next возвращает услугу с указанным id. С next=true возвращает следующую за ней в ленте. Доступно без авторизации.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Получить сервер по id или следующий за ним",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "true"
+                        ],
+                        "type": "string",
+                        "description": "Если true, вернуть следующую услугу",
+                        "name": "next",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RenderServerUnitDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаляет услугу. Доступно только её создателю.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Удалить услугу",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MessageResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/render-server-units/{id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "like=true ставит лайк (201), like=false снимает (200). Повторный лайк не создаёт дубликат.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RenderServerUnits"
+                ],
+                "summary": "Поставить или убрать лайк",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Поставить или снять лайк",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.LikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "лайк отменён",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MessageResponse"
+                        }
+                    },
+                    "201": {
+                        "description": "лайк поставлен",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/sign-in": {
+            "post": {
+                "description": "Проверяет логин и пароль и возвращает JWT. Токен передаётся в заголовке Authorization: Bearer \u003cтокен\u003e.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Аутентификация",
+                "parameters": [
+                    {
+                        "description": "Логин и пароль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректное тело запроса"
+                    },
+                    "403": {
+                        "description": "Неверный логин или пароль"
+                    },
+                    "500": {
+                        "description": "Ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/sign-out": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавляет текущий JWT в блеклист Redis до истечения срока его жизни. После этого токен перестаёт приниматься.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Выход",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Токен не передан или невалиден"
+                    },
+                    "500": {
+                        "description": "Ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/sign-up": {
+            "post": {
+                "description": "Создаёт нового пользователя с ролью Guest. Пароль хранится в виде хеша.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Регистрация",
+                "parameters": [
+                    {
+                        "description": "Логин и пароль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.registerReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.registerResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Пустой логин или пароль"
+                    },
+                    "500": {
+                        "description": "Ошибка сервера"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ds.RenderServerUnit": {
+            "type": "object",
+            "properties": {
+                "cores": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "processor": {
+                    "type": "string"
+                },
+                "ram": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "video": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "описание ошибки"
+                }
+            }
+        },
+        "handler.LikeRequest": {
+            "type": "object",
+            "properties": {
+                "like": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.MessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "запись успешно удалена"
+                }
+            }
+        },
+        "handler.RenderServerUnitDetail": {
+            "type": "object",
+            "properties": {
+                "cores": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "likes_number": {
+                    "type": "integer"
+                },
+                "processor": {
+                    "type": "string"
+                },
+                "ram": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "video": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.RenderServerUnitDetailResponse": {
+            "type": "object",
+            "properties": {
+                "renderServerUnit": {
+                    "$ref": "#/definitions/handler.RenderServerUnitDetail"
+                }
+            }
+        },
+        "handler.RenderServerUnitListItem": {
+            "type": "object",
+            "properties": {
+                "cores": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "is_mine": {
+                    "type": "boolean"
+                },
+                "likes_number": {
+                    "type": "integer"
+                },
+                "processor": {
+                    "type": "string"
+                },
+                "ram": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "video": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.RenderServerUnitMessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "renderServerUnit": {
+                    "$ref": "#/definitions/ds.RenderServerUnit"
+                }
+            }
+        },
+        "handler.RenderServerUnitResponse": {
+            "type": "object",
+            "properties": {
+                "renderServerUnit": {
+                    "$ref": "#/definitions/ds.RenderServerUnit"
+                }
+            }
+        },
+        "handler.RenderServerUnitsResponse": {
+            "type": "object",
+            "properties": {
+                "max": {
+                    "type": "string",
+                    "example": "128"
+                },
+                "min": {
+                    "type": "string",
+                    "example": "8"
+                },
+                "renderServerUnits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.RenderServerUnitListItem"
+                    }
+                }
+            }
+        },
+        "handler.loginReq": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.loginResp": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.registerReq": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.registerResp": {
+            "type": "object",
+            "properties": {
+                "ok": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
 }

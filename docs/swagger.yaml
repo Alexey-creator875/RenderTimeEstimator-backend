@@ -1,17 +1,474 @@
-basePath: /
-host: 127.0.0.1
+definitions:
+  ds.RenderServerUnit:
+    properties:
+      cores:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      processor:
+        type: string
+      ram:
+        type: integer
+      status:
+        type: string
+      video:
+        type: string
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        example: описание ошибки
+        type: string
+    type: object
+  handler.LikeRequest:
+    properties:
+      like:
+        type: boolean
+    type: object
+  handler.MessageResponse:
+    properties:
+      message:
+        example: запись успешно удалена
+        type: string
+    type: object
+  handler.RenderServerUnitDetail:
+    properties:
+      cores:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      is_liked:
+        type: boolean
+      likes_number:
+        type: integer
+      processor:
+        type: string
+      ram:
+        type: integer
+      status:
+        type: string
+      video:
+        type: string
+    type: object
+  handler.RenderServerUnitDetailResponse:
+    properties:
+      renderServerUnit:
+        $ref: '#/definitions/handler.RenderServerUnitDetail'
+    type: object
+  handler.RenderServerUnitListItem:
+    properties:
+      cores:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      is_mine:
+        type: boolean
+      likes_number:
+        type: integer
+      processor:
+        type: string
+      ram:
+        type: integer
+      status:
+        type: string
+      video:
+        type: string
+    type: object
+  handler.RenderServerUnitMessageResponse:
+    properties:
+      message:
+        type: string
+      renderServerUnit:
+        $ref: '#/definitions/ds.RenderServerUnit'
+    type: object
+  handler.RenderServerUnitResponse:
+    properties:
+      renderServerUnit:
+        $ref: '#/definitions/ds.RenderServerUnit'
+    type: object
+  handler.RenderServerUnitsResponse:
+    properties:
+      max:
+        example: "128"
+        type: string
+      min:
+        example: "8"
+        type: string
+      renderServerUnits:
+        items:
+          $ref: '#/definitions/handler.RenderServerUnitListItem'
+        type: array
+    type: object
+  handler.loginReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.loginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  handler.registerReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.registerResp:
+    properties:
+      ok:
+        type: boolean
+    type: object
 info:
-  contact:
-    email: bitop@spatecon.ru
-    name: API Support
-    url: https://vk.com/bmstu_schedule
-  description: Bmstu Open IT Platform
-  license:
-    name: AS IS (NO WARRANTY)
-  title: BITOP
-  version: "1.0"
-paths: {}
-schemes:
-- https
-- http
+  contact: {}
+paths:
+  /api/draft-render-server-units:
+    get:
+      description: Возвращает черновик услуги, созданный текущим пользователем. Только
+        для создателя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RenderServerUnitResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить черновик текущего пользователя
+      tags:
+      - RenderServerUnits
+  /api/render-server-units:
+    get:
+      description: 'Возвращает опубликованные услуги. Фильтр по RAM: параметры min
+        и max нужно передавать вместе, без них возвращаются все услуги. Доступно без
+        авторизации.'
+      parameters:
+      - description: Минимальный объём RAM
+        in: query
+        name: min
+        type: integer
+      - description: Максимальный объём RAM
+        in: query
+        name: max
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RenderServerUnitsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Список опубликованных серверов
+      tags:
+      - RenderServerUnits
+    post:
+      consumes:
+      - multipart/form-data
+      description: Создаёт черновик с картинкой и видео. Создатель подставляется автоматически.
+        Максимальный размер формы 2 МБ.
+      parameters:
+      - description: Название процессора
+        in: formData
+        name: processor
+        required: true
+        type: string
+      - description: Изображение (jpeg, png, gif, webp)
+        in: formData
+        name: image
+        type: file
+      - description: Видео (mp4, webm, mov, avi, mkv)
+        in: formData
+        name: video
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.RenderServerUnitMessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Создать черновик услуги
+      tags:
+      - RenderServerUnits
+    put:
+      consumes:
+      - multipart/form-data
+      description: Заполняет поля черновика текущего пользователя и переводит его
+        в статус published.
+      parameters:
+      - description: Количество ядер
+        in: formData
+        name: cores
+        type: integer
+      - description: Объём RAM
+        in: formData
+        name: ram
+        type: integer
+      - description: Описание
+        in: formData
+        name: description
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RenderServerUnitMessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Опубликовать черновик
+      tags:
+      - RenderServerUnits
+  /api/render-server-units/{id}:
+    delete:
+      description: Удаляет услугу. Доступно только её создателю.
+      parameters:
+      - description: ID услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить услугу
+      tags:
+      - RenderServerUnits
+    get:
+      description: Без параметра next возвращает услугу с указанным id. С next=true
+        возвращает следующую за ней в ленте. Доступно без авторизации.
+      parameters:
+      - description: ID услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Если true, вернуть следующую услугу
+        enum:
+        - "true"
+        in: query
+        name: next
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RenderServerUnitDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Получить сервер по id или следующий за ним
+      tags:
+      - RenderServerUnits
+  /api/render-server-units/{id}/like:
+    post:
+      consumes:
+      - application/json
+      description: like=true ставит лайк (201), like=false снимает (200). Повторный
+        лайк не создаёт дубликат.
+      parameters:
+      - description: ID услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Поставить или снять лайк
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LikeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: лайк отменён
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "201":
+          description: лайк поставлен
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Поставить или убрать лайк
+      tags:
+      - RenderServerUnits
+  /api/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: 'Проверяет логин и пароль и возвращает JWT. Токен передаётся в
+        заголовке Authorization: Bearer <токен>.'
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.loginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.loginResp'
+        "400":
+          description: Некорректное тело запроса
+        "403":
+          description: Неверный логин или пароль
+        "500":
+          description: Ошибка сервера
+      summary: Аутентификация
+      tags:
+      - Auth
+  /api/sign-out:
+    post:
+      description: Добавляет текущий JWT в блеклист Redis до истечения срока его жизни.
+        После этого токен перестаёт приниматься.
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Токен не передан или невалиден
+        "500":
+          description: Ошибка сервера
+      security:
+      - ApiKeyAuth: []
+      summary: Выход
+      tags:
+      - Auth
+  /api/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт нового пользователя с ролью Guest. Пароль хранится в виде
+        хеша.
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.registerResp'
+        "400":
+          description: Пустой логин или пароль
+        "500":
+          description: Ошибка сервера
+      summary: Регистрация
+      tags:
+      - Auth
 swagger: "2.0"

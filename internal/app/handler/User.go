@@ -28,11 +28,24 @@ type loginReq struct {
 }
 
 type loginResp struct {
-	ExpiresIn   time.Duration `json:"expires_in"`
+	ExpiresIn   time.Duration `json:"expires_in" swaggertype:"integer"`
 	AccessToken string        `json:"access_token"`
 	TokenType   string        `json:"token_type"`
 }
 
+
+// Login godoc
+// @Summary      Аутентификация
+// @Description  Проверяет логин и пароль и возвращает JWT. Токен передаётся в заголовке Authorization: Bearer <токен>.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      loginReq  true  "Логин и пароль"
+// @Success      200   {object}  loginResp
+// @Failure      400   "Некорректное тело запроса"
+// @Failure      403   "Неверный логин или пароль"
+// @Failure      500   "Ошибка сервера"
+// @Router       /api/sign-in [post]
 func (h *Handler) Login(c *gin.Context) {
 	var req loginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,11 +55,10 @@ func (h *Handler) Login(c *gin.Context) {
 
 	user, err := h.Repository.GetUserByLogin(req.Login)
 
-	if req.Login != user.Login || generateHashString(req.Password) != user.Password {
+	if err != nil || generateHashString(req.Password) != user.Password {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
-
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &ds.JWTClaims{
 		StandardClaims: jwt.StandardClaims{
@@ -80,6 +92,17 @@ type registerResp struct {
 	Ok bool `json:"ok"`
 }
 
+// Register godoc
+// @Summary      Регистрация
+// @Description  Создаёт нового пользователя с ролью Guest. Пароль хранится в виде хеша.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      registerReq  true  "Логин и пароль"
+// @Success      200   {object}  registerResp
+// @Failure      400   "Пустой логин или пароль"
+// @Failure      500   "Ошибка сервера"
+// @Router       /api/sign-up [post]
 func (h *Handler) Register(gCtx *gin.Context) {
 	req := &registerReq{}
 
@@ -121,6 +144,15 @@ func generateHashString(s string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+// Logout godoc
+// @Summary      Выход
+// @Description  Добавляет текущий JWT в блеклист Redis до истечения срока его жизни. После этого токен перестаёт приниматься.
+// @Tags         Auth
+// @Security     ApiKeyAuth
+// @Success      200
+// @Failure      400  "Токен не передан или невалиден"
+// @Failure      500  "Ошибка сервера"
+// @Router       /api/sign-out [post]
 func (h *Handler) Logout(gCtx *gin.Context) {
 	// получаем заголовок
 	jwtStr := gCtx.GetHeader("Authorization")

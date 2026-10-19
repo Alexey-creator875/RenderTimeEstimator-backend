@@ -8,6 +8,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files"
+
+	_ "RenderTimeEstimator/docs"
 )
 
 type Handler struct {
@@ -25,11 +30,12 @@ func NewHandler(r *repository.Repository, rd *redis.Client, jwtCfg config.JWTCon
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.POST("/api/sign-up", h.Register)
 	router.POST("/api/sign-in", h.Login)
 	router.POST("/api/sign-out", h.Logout)
-
-	router.Use(h.WithAuthCheck(role.Guest, role.Admin)).GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
+	router.GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
 	router.GET("/api/render-server-units/:id", h.GetRenderServerUnitAPI)
 
 	router.Use(h.WithAuthCheck(role.Admin)).GET("/api/draft-render-server-units", h.GetDraftRenderServerUnitAPI)
@@ -37,7 +43,6 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT("/api/render-server-units", h.PublishRenderServerUnitAPI)
 	router.DELETE("/api/render-server-units/:id", h.DeleteRenderServerUnitAPI)
 	router.POST("/api/render-server-units/:id/like", h.LikeRenderServerUnitAPI)
-
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

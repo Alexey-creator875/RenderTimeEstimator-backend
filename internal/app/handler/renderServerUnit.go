@@ -64,6 +64,17 @@ func validateFileUpload(header *multipart.FileHeader, check func(string) bool) (
 	return 0, nil
 }
 
+// GetRenderServerUnitsAPI godoc
+// @Summary      Список опубликованных серверов
+// @Description  Возвращает опубликованные услуги. Фильтр по RAM: параметры min и max нужно передавать вместе, без них возвращаются все услуги. Доступно без авторизации.
+// @Tags         RenderServerUnits
+// @Produce      json
+// @Param        min  query     int  false  "Минимальный объём RAM"
+// @Param        max  query     int  false  "Максимальный объём RAM"
+// @Success      200  {object}  RenderServerUnitsResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/render-server-units [get]
 func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	var renderServerUnits []ds.RenderServerUnit
 	var err error
@@ -138,6 +149,17 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 	})
 }
 
+// GetRenderServerUnitAPI godoc
+// @Summary      Получить сервер по id или следующий за ним
+// @Description  Без параметра next возвращает услугу с указанным id. С next=true возвращает следующую за ней в ленте. Доступно без авторизации.
+// @Tags         RenderServerUnits
+// @Produce      json
+// @Param        id    path      int     true   "ID услуги"
+// @Param        next  query     string  false  "Если true, вернуть следующую услугу"  Enums(true)
+// @Success      200   {object}  RenderServerUnitDetailResponse
+// @Failure      400   {object}  ErrorResponse
+// @Failure      500   {object}  ErrorResponse
+// @Router       /api/render-server-units/{id} [get]
 func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 	idString := ctx.Param("id")
 	id, err := strconv.Atoi(idString)
@@ -202,6 +224,16 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 	})
 }
 
+// GetDraftRenderServerUnitAPI godoc
+// @Summary      Получить черновик текущего пользователя
+// @Description  Возвращает черновик услуги, созданный текущим пользователем. Только для создателя.
+// @Tags         RenderServerUnits
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Success      200  {object}  RenderServerUnitResponse
+// @Failure      403  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/draft-render-server-units [get]
 func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
 	creatorID := GetUserID()
 	draftRenderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
@@ -216,6 +248,21 @@ func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
 	})
 }
 
+// AddDraftRenderServerUnitAPI godoc
+// @Summary      Создать черновик услуги
+// @Description  Создаёт черновик с картинкой и видео. Создатель подставляется автоматически. Максимальный размер формы 2 МБ.
+// @Tags         RenderServerUnits
+// @Accept       mpfd
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        processor  formData  string  true   "Название процессора"
+// @Param        image      formData  file    false  "Изображение (jpeg, png, gif, webp)"
+// @Param        video      formData  file    false  "Видео (mp4, webm, mov, avi, mkv)"
+// @Success      201  {object}  RenderServerUnitMessageResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      403  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/render-server-units [post]
 func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	err := ctx.Request.ParseMultipartForm(2 << 20)
 
@@ -300,6 +347,22 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 	})
 }
 
+// PublishRenderServerUnitAPI godoc
+// @Summary      Опубликовать черновик
+// @Description  Заполняет поля черновика текущего пользователя и переводит его в статус published.
+// @Tags         RenderServerUnits
+// @Accept       mpfd
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        cores        formData  int     false  "Количество ядер"
+// @Param        ram          formData  int     false  "Объём RAM"
+// @Param        description  formData  string  false  "Описание"
+// @Success      200  {object}  RenderServerUnitMessageResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      403  {object}  ErrorResponse
+// @Failure      404  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/render-server-units [put]
 func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 	creatorID := GetUserID()
 	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
@@ -348,6 +411,18 @@ func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
 	})
 }
 
+// DeleteRenderServerUnitAPI godoc
+// @Summary      Удалить услугу
+// @Description  Удаляет услугу. Доступно только её создателю.
+// @Tags         RenderServerUnits
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id   path      int  true  "ID услуги"
+// @Success      200  {object}  MessageResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      403  {object}  MessageResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/render-server-units/{id} [delete]
 func (h *Handler) DeleteRenderServerUnitAPI(ctx *gin.Context) {
 	idString := ctx.Param("id")
 	id, err := strconv.Atoi(idString)
@@ -390,6 +465,21 @@ type LikeRequest struct {
 	Like bool `json:"like"`
 }
 
+// LikeRenderServerUnitAPI godoc
+// @Summary      Поставить или убрать лайк
+// @Description  like=true ставит лайк (201), like=false снимает (200). Повторный лайк не создаёт дубликат.
+// @Tags         RenderServerUnits
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id    path      int          true  "ID услуги"
+// @Param        body  body      LikeRequest  true  "Поставить или снять лайк"
+// @Success      200   {object}  MessageResponse  "лайк отменён"
+// @Success      201   {object}  MessageResponse  "лайк поставлен"
+// @Failure      400   {object}  ErrorResponse
+// @Failure      403   {object}  ErrorResponse
+// @Failure      500   {object}  ErrorResponse
+// @Router       /api/render-server-units/{id}/like [post]
 func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
 	userID := GetUserID()
 
