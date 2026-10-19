@@ -8,11 +8,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -119,31 +121,36 @@ func generateHashString(s string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (h *Handler) SignUp(ctx *gin.Context) {
-	newUser := ds.User{
-		Login:		ctx.Request.FormValue("login"),
-		Password:	ctx.Request.FormValue("password"),
-	}
-
-	err := h.Repository.AddUser(&newUser)
-	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+func (h *Handler) Logout(gCtx *gin.Context) {
+	// получаем заголовок
+	jwtStr := gCtx.GetHeader("Authorization")
+	if !strings.HasPrefix(jwtStr, jwtPrefix) { // если нет префикса, токен передан неверно
+		gCtx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{
-		"user": newUser,
-	})
-}
+	// отрезаем префикс
+	jwtStr = jwtStr[len(jwtPrefix):]
 
-func (h *Handler) SignIn(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "авторизация",
+	token, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(h.JWT.Token), nil
 	})
-}
+	if err != nil || !token.Valid {
+		logrus.Error(err)
+		gCtx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
-func (h *Handler) SignOut(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "деавторизация",
-	})
+	// в блеклисте токен нужен только до своего истечения
+	claims := token.Claims.(*ds.JWTClaims)
+	ttl := time.Until(time.Unix(claims.ExpiresAt, 0))
+
+	// сохраняем в блеклист redis
+	if err := h.Redis.WriteJWTToBlacklist(gCtx.Request.Context(), jwtStr, ttl); err != nil {
+		logrus.Error(err)
+		gCtx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gCtx.Status(http.StatusOK)
 }

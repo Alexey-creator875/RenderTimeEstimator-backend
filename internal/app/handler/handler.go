@@ -2,6 +2,7 @@ package handler
 
 import (
 	"RenderTimeEstimator/internal/app/config"
+	"RenderTimeEstimator/internal/app/redis"
 	"RenderTimeEstimator/internal/app/repository"
 	"RenderTimeEstimator/internal/app/role"
 
@@ -11,12 +12,14 @@ import (
 
 type Handler struct {
 	Repository *repository.Repository
+	Redis *redis.Client
 	JWT config.JWTConfig
 }
 
-func NewHandler(r *repository.Repository, jwtCfg config.JWTConfig) *Handler {
+func NewHandler(r *repository.Repository, rd *redis.Client, jwtCfg config.JWTConfig, ) *Handler {
   	return &Handler{
     	Repository: r,
+		Redis: 		rd,
 		JWT:        jwtCfg,
   	}
 }
@@ -24,7 +27,7 @@ func NewHandler(r *repository.Repository, jwtCfg config.JWTConfig) *Handler {
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST("/api/sign-up", h.Register)
 	router.POST("/api/sign-in", h.Login)
-	router.POST("/api/sign-out", h.SignOut)
+	router.POST("/api/sign-out", h.Logout)
 
 	router.Use(h.WithAuthCheck(role.Guest, role.Admin)).GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
 	router.GET("/api/render-server-units/:id", h.GetRenderServerUnitAPI)

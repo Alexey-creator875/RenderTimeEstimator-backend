@@ -4,8 +4,10 @@ import (
 	"RenderTimeEstimator/internal/app/config"
 	"RenderTimeEstimator/internal/app/dsn"
 	"RenderTimeEstimator/internal/app/handler"
+	"RenderTimeEstimator/internal/app/redis"
 	"RenderTimeEstimator/internal/app/repository"
 	"RenderTimeEstimator/internal/pkg"
+	"context"
 	"fmt"
 	"os"
 
@@ -49,7 +51,15 @@ func main() {
 		logrus.Fatalf("error initializing repository: %v", errRep)
 	}
 
-	hand := handler.NewHandler(rep, conf.JWT)
+	ctx := context.Background()
+
+	rd, err := redis.New(ctx, conf.Redis)
+	if err != nil {
+		logrus.Fatalf("error initializing redis: %v", err)
+	}
+	defer rd.Close()
+
+	hand := handler.NewHandler(rep, rd, conf.JWT)
 
 	application := pkg.NewApp(conf, router, hand)
 	application.RunApp()
