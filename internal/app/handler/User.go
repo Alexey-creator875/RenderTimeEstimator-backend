@@ -58,7 +58,7 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	user, err := h.Repository.GetUserByLogin(req.Login)
-
+	
 	if err != nil || generateHashString(req.Password) != user.Password {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
