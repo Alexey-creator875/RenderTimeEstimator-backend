@@ -41,7 +41,7 @@ type loginResp struct {
 // Login godoc
 // @Summary      Аутентификация
 // @Description  Проверяет логин и пароль и возвращает JWT. Токен передаётся в заголовке Authorization: Bearer <токен>.
-// @Tags         Auth
+// @Tags         User
 // @Accept       json
 // @Produce      json
 // @Param        body  body      loginReq  true  "Логин и пароль"
@@ -100,7 +100,7 @@ type registerResp struct {
 // Register godoc
 // @Summary      Регистрация
 // @Description  Создаёт нового пользователя с ролью Guest. Пароль хранится в виде хеша.
-// @Tags         Auth
+// @Tags         User
 // @Accept       json
 // @Produce      json
 // @Param        body  body      registerReq  true  "Логин и пароль"
@@ -152,7 +152,7 @@ func generateHashString(s string) string {
 // Logout godoc
 // @Summary      Выход
 // @Description  Добавляет текущий JWT в блеклист Redis до истечения срока его жизни. После этого токен перестаёт приниматься.
-// @Tags         Auth
+// @Tags         User
 // @Security     ApiKeyAuth
 // @Success      200
 // @Failure      400  "Токен не передан или невалиден"

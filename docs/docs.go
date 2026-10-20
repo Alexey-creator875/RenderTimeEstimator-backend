@@ -413,7 +413,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Аутентификация",
                 "parameters": [
@@ -455,7 +455,7 @@ const docTemplate = `{
                 ],
                 "description": "Добавляет текущий JWT в блеклист Redis до истечения срока его жизни. После этого токен перестаёт приниматься.",
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Выход",
                 "responses": {
@@ -481,7 +481,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Регистрация",
                 "parameters": [

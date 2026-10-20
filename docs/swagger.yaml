@@ -427,7 +427,7 @@ paths:
           description: Ошибка сервера
       summary: Аутентификация
       tags:
-      - Auth
+      - User
   /api/sign-out:
     post:
       description: Добавляет текущий JWT в блеклист Redis до истечения срока его жизни.
@@ -443,7 +443,7 @@ paths:
       - ApiKeyAuth: []
       summary: Выход
       tags:
-      - Auth
+      - User
   /api/sign-up:
     post:
       consumes:
@@ -470,5 +470,5 @@ paths:
           description: Ошибка сервера
       summary: Регистрация
       tags:
-      - Auth
+      - User
 swagger: "2.0"

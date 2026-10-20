@@ -402,7 +402,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Аутентификация",
                 "parameters": [
@@ -444,7 +444,7 @@
                 ],
                 "description": "Добавляет текущий JWT в блеклист Redis до истечения срока его жизни. После этого токен перестаёт приниматься.",
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Выход",
                 "responses": {
@@ -470,7 +470,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "User"
                 ],
                 "summary": "Регистрация",
                 "parameters": [
