@@ -50,6 +50,7 @@ func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Contex
 
 		for _, oneOfAssignedRole := range assignedRoles {
 			if myClaims.Role == oneOfAssignedRole {
+				gCtx.Set("userID", myClaims.UserID)
 				gCtx.Set("userUUID", myClaims.UserUUID)
 				gCtx.Set("role", myClaims.Role)
 				gCtx.Next()
@@ -60,4 +61,30 @@ func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Contex
 		logrus.Printf("role %v is not assigned in %v", myClaims.Role, assignedRoles)
 		gCtx.AbortWithStatus(http.StatusForbidden)
 	}
+}
+
+func (h *Handler) WithOptionalAuth(gCtx *gin.Context) {
+	jwtStr := gCtx.GetHeader("Authorization")
+	if !strings.HasPrefix(jwtStr, jwtPrefix) {
+		gCtx.Next()
+		return
+	}
+	jwtStr = jwtStr[len(jwtPrefix):]
+
+	// токен из блеклиста считаем отсутствующим
+	if err := h.Redis.CheckJWTInBlacklist(gCtx.Request.Context(), jwtStr); err == nil {
+		gCtx.Next()
+		return
+	}
+
+	token, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(h.JWT.Token), nil
+	})
+	if err == nil && token.Valid {
+		claims := token.Claims.(*ds.JWTClaims)
+		gCtx.Set("userID", claims.UserID)
+		gCtx.Set("role", claims.Role)
+	}
+
+	gCtx.Next()
 }

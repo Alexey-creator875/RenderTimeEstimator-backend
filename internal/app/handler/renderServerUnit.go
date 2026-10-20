@@ -11,10 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUserID() uint {
-	return uint(1)
-}
-
 func isImage(contentType string) bool {
 	imageTypes := []string{
 		"image/jpeg",
@@ -113,7 +109,7 @@ func (h *Handler) GetRenderServerUnitsAPI(ctx *gin.Context) {
 		}
 	}
 
-	userId := GetUserID()
+	userId := GetUserID(ctx)
 
 	type ExtendedRenderServerUnit struct {
 		ds.RenderServerUnit
@@ -199,7 +195,7 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
-	userID := GetUserID()
+	userID := GetUserID(ctx)
 	isLiked, err := h.Repository.IsLikedByUser(renderServerUnit.ID, int(userID))
 
 	if err != nil {
@@ -235,7 +231,7 @@ func (h *Handler) GetRenderServerUnitAPI(ctx *gin.Context) {
 // @Failure      500  {object}  ErrorResponse
 // @Router       /api/draft-render-server-units [get]
 func (h *Handler) GetDraftRenderServerUnitAPI(ctx *gin.Context) {
-	creatorID := GetUserID()
+	creatorID := GetUserID(ctx)
 	draftRenderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
 
 	if err != nil {
@@ -308,7 +304,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 		}
 	}
 
-	creatorID := GetUserID()
+	creatorID := GetUserID(ctx)
 
 	draftRenderServerUnit := ds.RenderServerUnit{
 		Processor: ctx.Request.FormValue("processor"),
@@ -364,7 +360,7 @@ func (h *Handler) AddDraftRenderServerUnitAPI(ctx *gin.Context) {
 // @Failure      500  {object}  ErrorResponse
 // @Router       /api/render-server-units [put]
 func (h *Handler) PublishRenderServerUnitAPI(ctx *gin.Context) {
-	creatorID := GetUserID()
+	creatorID := GetUserID(ctx)
 	renderServerUnit, err := h.Repository.GetDraftRenderServerUnit(creatorID)
 
 	if err != nil {
@@ -439,7 +435,7 @@ func (h *Handler) DeleteRenderServerUnitAPI(ctx *gin.Context) {
 		return
 	}
 
-	userID := GetUserID()
+	userID := GetUserID(ctx)
 
 	if RenderServerUnit.CreatorID != userID {
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -481,7 +477,7 @@ type LikeRequest struct {
 // @Failure      500   {object}  ErrorResponse
 // @Router       /api/render-server-units/{id}/like [post]
 func (h *Handler) LikeRenderServerUnitAPI(ctx *gin.Context) {
-	userID := GetUserID()
+	userID := GetUserID(ctx)
 
 	renderServerUnitIdString := ctx.Param("id")
 	renderServerUnitID, err := strconv.Atoi(renderServerUnitIdString)

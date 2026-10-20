@@ -9,6 +9,7 @@ import (
 
 type JWTClaims struct {
 	jwt.StandardClaims
+	UserID   uint      `json:"user_id"`
 	UserUUID uuid.UUID `json:"user_uuid"`
-	Role     role.Role
+	Role     role.Role `json:"role"`
 }

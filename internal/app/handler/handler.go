@@ -32,17 +32,19 @@ func NewHandler(r *repository.Repository, rd *redis.Client, jwtCfg config.JWTCon
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	router.GET("/api/render-server-units", h.WithOptionalAuth, h.GetRenderServerUnitsAPI)
+	router.GET("/api/render-server-units/:id", h.WithOptionalAuth, h.GetRenderServerUnitAPI)
+
+	creatorOnly := h.WithAuthCheck(role.Creator)
+	router.GET("/api/draft-render-server-units", creatorOnly, h.GetDraftRenderServerUnitAPI)
+	router.POST("/api/render-server-units", creatorOnly, h.AddDraftRenderServerUnitAPI)
+	router.PUT("/api/render-server-units", creatorOnly, h.PublishRenderServerUnitAPI)
+	router.DELETE("/api/render-server-units/:id", creatorOnly, h.DeleteRenderServerUnitAPI)
+	router.POST("/api/render-server-units/:id/like", creatorOnly, h.LikeRenderServerUnitAPI)
+
 	router.POST("/api/sign-up", h.Register)
 	router.POST("/api/sign-in", h.Login)
 	router.POST("/api/sign-out", h.Logout)
-	router.GET("/api/render-server-units", h.GetRenderServerUnitsAPI)
-	router.GET("/api/render-server-units/:id", h.GetRenderServerUnitAPI)
-
-	router.Use(h.WithAuthCheck(role.Admin)).GET("/api/draft-render-server-units", h.GetDraftRenderServerUnitAPI)
-	router.POST("/api/render-server-units", h.AddDraftRenderServerUnitAPI)
-	router.PUT("/api/render-server-units", h.PublishRenderServerUnitAPI)
-	router.DELETE("/api/render-server-units/:id", h.DeleteRenderServerUnitAPI)
-	router.POST("/api/render-server-units/:id/like", h.LikeRenderServerUnitAPI)
 }
 
 func (h *Handler) RegisterStatic(router *gin.Engine) {

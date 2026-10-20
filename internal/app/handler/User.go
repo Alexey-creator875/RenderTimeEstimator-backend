@@ -17,10 +17,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	login    = "login"
-	password = "password"
-)
+func GetUserID(ctx *gin.Context) uint {
+	v, ok := ctx.Get("userID")
+	if !ok {
+		return 0
+	}
+	id, _ := v.(uint)
+	return id
+}
 
 type loginReq struct {
 	Login    string `json:"login"`
@@ -66,7 +70,8 @@ func (h *Handler) Login(c *gin.Context) {
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "render-time-estimator",
 		},
-		UserUUID: uuid.New(),
+		UserID:   user.ID,
+		UserUUID: user.UUID,
 		Role:     user.Role,
 	})
 
