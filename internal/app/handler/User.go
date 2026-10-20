@@ -129,7 +129,7 @@ func (h *Handler) Register(gCtx *gin.Context) {
 
 	err = h.Repository.Register(&ds.User{
 		UUID: uuid.New(),
-		Role: role.Guest,
+		Role: role.Creator,
 		Login: req.Login,
 		Password: generateHashString(req.Password), // пароли делаем в хешированном виде и далее будем сравнивать хеши, чтобы их не угнали с базой вместе
 	})
